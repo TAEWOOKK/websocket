@@ -44,6 +44,12 @@ public class WebSocketHandler extends TextWebSocketHandler {
             chatRoomSessionMap.computeIfAbsent(chatMessageDto.getChatRoomId(), s -> new HashSet<>()).add(session);
             chatMessageDto.setMessage(chatMessageDto.getUserName()+" 님이 입장하셨습니다.");
         }
+
+        else if(chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.TALK)){
+            // 입장 메세지
+            chatMessageDto.setMessage(chatMessageDto.getUserName());
+        }
+
         else if(chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.LEAVE)){
             // 퇴장 메세지
             chatRoomSessionMap.get(chatMessageDto.getChatRoomId()).remove(session);
