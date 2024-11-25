@@ -3,6 +3,7 @@ package com.back.websocket.user.controller;
 import com.back.websocket.user.dto.SignInRequestDTO;
 import com.back.websocket.user.dto.SignUpRequestDTO;
 import com.back.websocket.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signUp")
-    public ResponseEntity<?> signUp(SignUpRequestDTO signUpRequestDTO) {
+    public ResponseEntity<?> signUp(@Valid SignUpRequestDTO signUpRequestDTO) {
 
         System.out.println(signUpRequestDTO);
 

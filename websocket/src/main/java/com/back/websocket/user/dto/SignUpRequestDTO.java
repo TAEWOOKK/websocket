@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SignUpRequestDTO {
 
-    @NotBlank
+    @NotBlank(message = "이메일이 공백입니다.")
     private String email;
-    @NotBlank
+    @NotBlank(message = "패스워드가 공백입니다.")
     private String password;
 }
