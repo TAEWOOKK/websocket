@@ -1,2 +1,10 @@
 server:
     port: 8085
+
+spring:
+    data:
+        mongodb:
+            host: "localhost"
+            port: 27017
+            database: "socket"
+            auto-index-creation: true

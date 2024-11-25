@@ -1,6 +1,6 @@
-package com.back.websocket.controller;
+package com.back.websocket.websocket;
 
-import com.back.websocket.dto.ChatMessageDto;
+import com.back.websocket.websocket.dto.ChatMessageDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +47,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
         else if(chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.TALK)){
             // 입장 메세지
-            chatMessageDto.setMessage(chatMessageDto.getUserName());
+            chatMessageDto.setMessage(chatMessageDto.getMessage());
         }
 
         else if(chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.LEAVE)){

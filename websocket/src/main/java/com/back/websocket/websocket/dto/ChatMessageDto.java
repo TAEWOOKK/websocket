@@ -1,4 +1,4 @@
-package com.back.websocket.dto;
+package com.back.websocket.websocket.dto;
 
 import lombok.*;
 
