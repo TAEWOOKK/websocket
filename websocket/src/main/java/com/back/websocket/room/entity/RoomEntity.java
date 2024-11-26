@@ -1,13 +1,11 @@
-package com.back.websocket.user.entity;
+package com.back.websocket.room.entity;
 
 import com.back.websocket.userRoom.entity.UserRoomEntity;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,18 +15,15 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Document(collection = "user")
-public class UserEntity {
+@Document(collection = "room")
+public class RoomEntity {
 
     @Id
     private String id;
 
-    @Indexed(unique = true)
-    @NotBlank
-    private String email;
+    private String room_name;
 
-    @NotBlank
-    private String password;
+    private String description;
 
     @DBRef
     private List<UserRoomEntity> userRoomEntities;
