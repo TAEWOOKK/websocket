@@ -1,11 +1,13 @@
 package com.back.websocket.room.entity;
 
-import com.back.websocket.userRoom.entity.UserRoomEntity;
+import com.back.websocket.user.entity.UserEntity;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -16,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "room")
+@Entity
 public class RoomEntity {
 
     @Id
@@ -26,5 +29,6 @@ public class RoomEntity {
     private String description;
 
     @DBRef
-    private List<UserRoomEntity> userRoomEntities;
+    @OneToMany
+    private List<UserEntity> userEntities;
 }
