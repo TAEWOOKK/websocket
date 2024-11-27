@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .signup-container {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      text-align: center;
+    }
+    .signup-container h2 {
+      margin-bottom: 20px;
+    }
+    .signup-container input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .signup-container button {
+      width: 95%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .signup-container button:hover {
+      background-color: #45a049;
+    }
+    .message {
+      margin-top: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="signup-container">
+  <h2>Sign Up</h2>
+  <input type="text" id="email" placeholder="Enter your email">
+  <input type="password" id="password" placeholder="Enter your password">
+  <button onclick="signUp()">Sign Up</button>
+  <div class="message" id="message"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // 입력 필드에서 Enter 키를 감지
+    $('#email, #password').on('keydown', function(e) {
+      if (e.key === 'Enter') { // Enter 키 확인
+        signUp(); // Sign Up 함수 호출
+      }
+    });
+  });
+
+  function signUp() {
+
+    $.ajax({
+      url: "signUp",
+      type: "POST",
+      dataType : 'json',
+      data : {
+        email : $('#email').val(),
+        password : $('#password').val()
+      },
+      success: function(data) {
+        if (data.state === true) {
+          alert(data.state); // 상태 알림
+          location.href = 'login'; // 성공 시 이동
+        } else {
+          document.getElementById('message').style.color = "red";
+          document.getElementById('message').textContent = data.result; // 에러 메시지
+        }
+      },
+      error: function(xhr) {
+        const errorResponse = JSON.parse(xhr.responseText);
+        const errorMessage = errorResponse.result || "An error occurred.";
+        document.getElementById('message').style.color = "red";
+        document.getElementById('message').textContent = errorMessage; // 에러 메시지
+      }
+    });
+  }
+</script>
+</body>
+</html>
