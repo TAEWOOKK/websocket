@@ -55,6 +55,7 @@
   <h2>Sign Up</h2>
   <input type="text" id="email" placeholder="Enter your email">
   <input type="password" id="password" placeholder="Enter your password">
+  <input type="text" id="nickname" placeholder="Enter your nickname"> <!-- 닉네임을 마지막에 배치 -->
   <button onclick="signUp()">Sign Up</button>
   <div class="message" id="message"></div>
 </div>
@@ -63,7 +64,7 @@
 <script>
   $(document).ready(function() {
     // 입력 필드에서 Enter 키를 감지
-    $('#email, #password').on('keydown', function(e) {
+    $('#email, #password, #nickname').on('keydown', function(e) {
       if (e.key === 'Enter') { // Enter 키 확인
         signUp(); // Sign Up 함수 호출
       }
@@ -71,22 +72,33 @@
   });
 
   function signUp() {
+    const email = $('#email').val();
+    const password = $('#password').val();
+    const nickname = $('#nickname').val();
+
+    // 유효성 검사: 필드가 비어있는지 확인
+    if (!email || !password || !nickname) {
+      document.getElementById('message').style.color = "red";
+      document.getElementById('message').textContent = "All fields are required.";
+      return;
+    }
 
     $.ajax({
-      url: "signUp",
+      url: "signUp", // 서버의 회원가입 URL로 수정 필요
       type: "POST",
-      dataType : 'json',
-      data : {
-        email : $('#email').val(),
-        password : $('#password').val()
+      dataType: 'json',
+      data: {
+        email: email,
+        password: password,
+        nickname: nickname
       },
       success: function(data) {
         if (data.state === true) {
-          alert(data.state); // 상태 알림
-          location.href = 'login'; // 성공 시 이동
+          alert("Sign Up Successful!"); // 회원가입 성공 알림
+          location.href = 'login'; // 성공 시 로그인 페이지로 이동
         } else {
           document.getElementById('message').style.color = "red";
-          document.getElementById('message').textContent = data.result; // 에러 메시지
+          document.getElementById('message').textContent = data.result; // 서버에서 반환된 에러 메시지
         }
       },
       error: function(xhr) {

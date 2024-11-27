@@ -75,14 +75,15 @@
     const password = document.getElementById('password').value;
 
     $.ajax({
-      url: "http://localhost:8085/signIn",
-      type: "GET",
+      url: "http://localhost:8085/login",
+      type: "POST",
+      dataType: 'json',
       data: { email, password },
       success: function(data) {
         if (data.state === true) {
           localStorage.setItem('email', email);
           alert("로그인 성공!");
-          window.location.href = "websocket.html";
+          window.location.href = "websocket";
         } else {
           document.getElementById('message').style.color = "red";
           document.getElementById('message').textContent = data.result; // 에러 메시지 표시

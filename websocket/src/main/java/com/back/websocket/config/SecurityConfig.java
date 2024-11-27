@@ -3,6 +3,8 @@ package com.back.websocket.config;
 import com.back.websocket.user.service.CustomAuthenticationFailureHandler;
 import com.back.websocket.user.service.CustomAuthenticationSuccessHandler;
 import com.back.websocket.user.service.CustomUserDetailsService;
+import com.back.websocket.user.service.UserService;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,16 +20,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 
 @Configuration
-@EnableWebSecurity(debug = true)
+@EnableWebSecurity
 public class SecurityConfig {
-
-    private final CustomUserDetailsService customUserDetailsService;
-    private final PasswordEncoder passwordEncoder;
-
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder) {
-        this.customUserDetailsService = customUserDetailsService;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -35,20 +29,9 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-
-        authenticationManagerBuilder
-                .userDetailsService(customUserDetailsService)  // 사용자 세부 정보 서비스 설정
-                .passwordEncoder(passwordEncoder);  // 비밀번호 인코더 설정
-
-        return authenticationManagerBuilder.build();  // AuthenticationManager 반환
-    }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,ApplicationContext applicationContext) throws Exception {
 
 
         http.csrf(AbstractHttpConfigurer::disable);
@@ -60,7 +43,7 @@ public class SecurityConfig {
                         .passwordParameter("password")
                         .loginProcessingUrl("/login")
                         .successHandler(authenticationSuccessHandler()) // 로그인 성공 핸들러
-                        .failureHandler(authenticationFailureHandler()) // 로그인 실패 핸들러
+                        .failureHandler(authenticationFailureHandler(applicationContext)) // 로그인 실패 핸들러
         );
         return http.build();
     }
@@ -71,7 +54,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationFailureHandler authenticationFailureHandler() {
-        return new CustomAuthenticationFailureHandler();
+    public AuthenticationFailureHandler authenticationFailureHandler(ApplicationContext applicationContext) {
+        return new CustomAuthenticationFailureHandler(applicationContext);
     }
 }

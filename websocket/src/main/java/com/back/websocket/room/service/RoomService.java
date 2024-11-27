@@ -38,7 +38,7 @@ public class RoomService {
 
         query.addCriteria(Criteria.where("email").regex(email));
 
-        List<UserEntity> userEntities = mongoTemplate.find(query, UserEntity.class);
+        //mongoTemplate.find(query, UserEntity.class)
 
         return new ResponseEntity<>("", HttpStatus.OK);
     }

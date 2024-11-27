@@ -30,8 +30,6 @@ public class UserController {
     @PostMapping("/signUp")
     public ResponseEntity<?> signUp(@Valid SignUpRequestDTO signUpRequestDTO) {
 
-        System.out.println(signUpRequestDTO);
-
         return userService.signUp(signUpRequestDTO);
     }
 
@@ -39,12 +37,5 @@ public class UserController {
     public String loginF(){
 
         return "/login/login";
-    }
-
-    @ResponseBody
-    @GetMapping("/signIn")
-    public ResponseEntity<?> signIn(SignInRequestDTO signInRequestDTO) {
-
-        return userService.signIn(signInRequestDTO);
     }
 }

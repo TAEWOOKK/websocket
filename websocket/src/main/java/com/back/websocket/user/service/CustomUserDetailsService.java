@@ -4,6 +4,7 @@ import com.back.websocket.user.dto.CustomUserDetails;
 import com.back.websocket.user.entity.UserEntity;
 import com.back.websocket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,8 +24,8 @@ public class CustomUserDetailsService implements UserDetailsService{
         if (userData != null) {
 
             return new CustomUserDetails(userData);
+        }else{
+            throw new UsernameNotFoundException("User not found with email: " + email);
         }
-
-        return null;
     }
 }

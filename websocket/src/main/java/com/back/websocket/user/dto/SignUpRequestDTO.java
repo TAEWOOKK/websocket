@@ -14,4 +14,6 @@ public class SignUpRequestDTO {
     private String email;
     @NotBlank(message = "패스워드가 공백입니다.")
     private String password;
+    @NotBlank(message = "닉네임이 공백입니다.")
+    private String nickname;
 }

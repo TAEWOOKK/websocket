@@ -27,11 +27,13 @@ public class UserEntity {
     private String id;
 
     @Indexed(unique = true)
-    @NotBlank
     private String email;
 
-    @NotBlank
     private String password;
+
+    private String nickname;
+
+    private String role;
 
     @DBRef
     @OneToMany

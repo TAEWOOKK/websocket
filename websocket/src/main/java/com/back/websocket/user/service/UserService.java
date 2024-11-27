@@ -7,8 +7,10 @@ import com.back.websocket.user.entity.UserEntity;
 import com.back.websocket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public ResponseEntity<?> signUp(SignUpRequestDTO signUpRequestDTO){
 
@@ -24,7 +27,9 @@ public class UserService {
 
             UserEntity userEntity = UserEntity.builder()
                     .email(signUpRequestDTO.getEmail())
-                    .password(signUpRequestDTO.getPassword())
+                    .password(bCryptPasswordEncoder.encode(signUpRequestDTO.getPassword()))
+                    .nickname(signUpRequestDTO.getNickname())
+                    .role("ROLE_USER")
                     .build();
 
             userRepository.save(userEntity);
@@ -36,21 +41,8 @@ public class UserService {
         return new ResponseEntity<>(new StateRes(true,"회원가입 성공"), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> signIn(SignInRequestDTO signInRequestDTO){
+    public Boolean userByEmail(String email){
 
-        if(!userRepository.existsByEmail(signInRequestDTO.getEmail())){
-
-            return new ResponseEntity<>(new StateRes(false,"아이디가 유효하지 않습니다"),HttpStatus.BAD_REQUEST);
-        }else{
-            UserEntity byEmail = userRepository.findByEmail(signInRequestDTO.getEmail());
-
-            if(byEmail.getPassword().equals(signInRequestDTO.getPassword())){
-
-                return new ResponseEntity<>(new StateRes(true,"로그인 성공"), HttpStatus.OK);
-            }else{
-
-                return new ResponseEntity<>(new StateRes(false,"비밀번호가 틀렸습니다"), HttpStatus.BAD_REQUEST);
-            }
-        }
+        return userRepository.existsByEmail(email);
     }
 }
