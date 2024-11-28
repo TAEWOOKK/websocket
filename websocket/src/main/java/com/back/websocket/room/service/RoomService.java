@@ -1,45 +1,84 @@
 package com.back.websocket.room.service;
 
-import com.back.websocket.user.entity.QUserEntity;
+import com.back.websocket.config.dto.StateRes;
+import com.back.websocket.room.dto.RoomInsertDTO;
+import com.back.websocket.room.dto.RoomListDto;
+import com.back.websocket.room.entity.RoomEntity;
+import com.back.websocket.room.repository.RoomRepository;
+import com.back.websocket.user.dto.CustomUserDetails;
 import com.back.websocket.user.entity.UserEntity;
 import com.back.websocket.user.repository.UserRepository;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class RoomService {
 
-    private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
+    private final UserRepository userRepository;
+    private final RoomRepository roomRepository;
 
-    QUserEntity userEntity = QUserEntity.userEntity;
+    public List<RoomListDto> room_List(CustomUserDetails userDetails){
 
+        String email = userDetails.getUsername();
 
-    public ResponseEntity<?> room_List(HttpServletRequest request){
-
-        String email = request.getHeader("email");
-
-        String password = request.getHeader("password");
-
-        BooleanExpression predicate = userEntity.email.contains(email)
-                .and(userEntity.email.contains(email));
+        UserEntity byEmail = userRepository.findByEmail(email);
 
         Query query = new Query();
 
-        query.addCriteria(Criteria.where("email").regex(email));
+        query.addCriteria(Criteria.where("userEntities.id").is(byEmail.getId()));
 
-        //mongoTemplate.find(query, UserEntity.class)
+        query.fields().include("room_name").include("description");
 
-        return new ResponseEntity<>("", HttpStatus.OK);
+        List<RoomEntity> rooms = mongoTemplate.find(query, RoomEntity.class);
+
+        return rooms.stream()
+                .map(room -> new RoomListDto(room.getRoom_name(), room.getDescription()))
+                .toList();
+    }
+
+    public StateRes room_Insert(CustomUserDetails userDetails, RoomInsertDTO insertDTO){
+
+        String email = userDetails.getUsername();
+
+        UserEntity byEmail = userRepository.findByEmail(email);
+
+        UserEntity randomUser = new UserEntity();
+
+        while (true){
+
+            Aggregation aggregation = Aggregation.newAggregation(
+                    Aggregation.sample(1)  // sample(1)은 1개의 무작위 문서를 반환
+            );
+            AggregationResults<UserEntity> result = mongoTemplate.aggregate(aggregation, UserEntity.class, UserEntity.class);
+
+            randomUser = result.getUniqueMappedResult();
+
+            if(randomUser != null && !randomUser.getId().equals(byEmail.getId())){
+                break;
+            }
+        }
+
+        List<UserEntity> userEntities = new ArrayList<>(Arrays.asList(randomUser, byEmail));
+
+
+
+        roomRepository.save(RoomEntity.builder()
+                .room_name(insertDTO.getRoom_name())
+                .description(insertDTO.getDescription())
+                .userEntities(userEntities)
+                .build());
+
+        return new StateRes(true,"채팅방이 개설되었습니다.");
     }
 }

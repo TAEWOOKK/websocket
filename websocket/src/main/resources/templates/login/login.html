@@ -81,9 +81,9 @@
       data: { email, password },
       success: function(data) {
         if (data.state === true) {
-          localStorage.setItem('email', email);
+          //localStorage.setItem('email', email);
           alert("로그인 성공!");
-          window.location.href = "websocket";
+          window.location.href = "Room/ListF";
         } else {
           document.getElementById('message').style.color = "red";
           document.getElementById('message').textContent = data.result; // 에러 메시지 표시

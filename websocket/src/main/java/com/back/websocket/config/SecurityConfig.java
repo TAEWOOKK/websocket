@@ -7,13 +7,10 @@ import com.back.websocket.user.service.UserService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -35,6 +32,13 @@ public class SecurityConfig {
 
 
         http.csrf(AbstractHttpConfigurer::disable);
+
+        http
+                .authorizeHttpRequests((auth) -> auth
+                        //.requestMatchers("/afeedback/**").hasRole("ADMIN")
+                        .requestMatchers("/signUp").permitAll()
+                        .anyRequest().authenticated());
+
         http
                 .formLogin((formLogin) ->
                 formLogin
@@ -44,6 +48,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/login")
                         .successHandler(authenticationSuccessHandler()) // 로그인 성공 핸들러
                         .failureHandler(authenticationFailureHandler(applicationContext)) // 로그인 실패 핸들러
+                        .permitAll()
         );
         return http.build();
     }
