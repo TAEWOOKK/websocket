@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RoomListDto {
 
+    private String room_id;
     private String room_name;
-    private String description;
 }

@@ -21,9 +21,11 @@
             justify-content: space-between;
         }
 
-        .room-card .room-name {
-            font-size: 18px;
-            font-weight: bold;
+        .room-card {
+            border: 2px solid #888; /* 실선으로 변경 */
+            margin: 10px;
+            padding: 20px;
+            text-align: center;
         }
 
         .room-card .room-description {
@@ -110,10 +112,9 @@
 
                 rooms.forEach(function(room) {
                     const roomCard = $('<div>').addClass('room-card').html(`
-                        <div class="room-name">${room.room_name}</div>
-                        <div class="room-description">${room.description}</div>
-                        <button class="btn btn-info mt-3" onclick="showRoomDetails('${room.room_name}', '${room.description}')">
-                            방 설명 보기
+                        <div class="room-name">${room.room_name}</div><br>
+                        <button class="btn btn-info mt-3" onclick="showRoomDetails('${room.room_id}')">
+                            방 &nbsp;이동
                         </button>
                     `);
                     roomListContainer.append(roomCard);
@@ -142,9 +143,8 @@
                 'room_name' : roomName,
                 'description' : roomDescription },
             success: function(response) {
-                alert(response.state); // 상태 메시지 출력
-
                 if (response.state === true) {
+                    alert('채팅방이 생성되었습니다.');
                     // 방 생성 후 리스트 새로 고침
                     fetchRoomList();
 
@@ -189,8 +189,8 @@
     });
 
     // 방 설명 모달
-    function showRoomDetails(roomName, roomDescription) {
-        alert(`방 제목: ${roomName}\n방 설명: ${roomDescription}`);
+    function showRoomDetails(room_id) {
+        alert(`${room_id}`);
     }
 
     // 페이지 로드 시 방 리스트 가져오기

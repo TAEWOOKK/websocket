@@ -38,12 +38,12 @@ public class RoomService {
 
         query.addCriteria(Criteria.where("userEntities.id").is(byEmail.getId()));
 
-        query.fields().include("room_name").include("description");
+        query.fields().include("id").include("room_name");
 
         List<RoomEntity> rooms = mongoTemplate.find(query, RoomEntity.class);
 
         return rooms.stream()
-                .map(room -> new RoomListDto(room.getRoom_name(), room.getDescription()))
+                .map(room -> new RoomListDto(room.getId(),room.getRoom_name()))
                 .toList();
     }
 

@@ -81,8 +81,6 @@
       data: { email, password },
       success: function(data) {
         if (data.state === true) {
-          //localStorage.setItem('email', email);
-          alert("로그인 성공!");
           window.location.href = "Room/ListF";
         } else {
           document.getElementById('message').style.color = "red";
