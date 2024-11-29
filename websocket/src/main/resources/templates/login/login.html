@@ -40,9 +40,16 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      margin-bottom: 10px;
     }
     .login-container button:hover {
       background-color: #45a049;
+    }
+    .login-container .signup-button {
+      background-color: #007BFF;
+    }
+    .login-container .signup-button:hover {
+      background-color: #0056b3;
     }
     .message {
       margin-top: 15px;
@@ -52,10 +59,11 @@
 </head>
 <body>
 <div class="login-container">
-  <h2>Login</h2>
-  <input type="text" id="email" placeholder="Enter your email">
-  <input type="password" id="password" placeholder="Enter your password">
-  <button onclick="signIn()">Login</button>
+  <h2>채팅 프로그램</h2>
+  <input type="text" id="email" placeholder="이메일을 입력하세요.">
+  <input type="password" id="password" placeholder="비밀번호를 입력하세요.">
+  <button onclick="signIn()">로그인</button>
+  <button class="signup-button" onclick="goToSignUp()">회원가입</button>
   <div class="message" id="message"></div>
 </div>
 
@@ -75,7 +83,7 @@
     const password = document.getElementById('password').value;
 
     $.ajax({
-      url: "http://localhost:8085/login",
+      url: "/login",
       type: "POST",
       dataType: 'json',
       data: { email, password },
@@ -94,6 +102,10 @@
         document.getElementById('message').textContent = errorMessage; // 에러 메시지 표시
       }
     });
+  }
+
+  function goToSignUp() {
+    window.location.href = "/signUp";
   }
 </script>
 </body>

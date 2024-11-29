@@ -41,4 +41,10 @@ public class RoomController {
 
         return new ResponseEntity<>(roomService.room_Insert(userDetails, dto), HttpStatus.OK);
     }
+
+    @GetMapping("/{RoomID}")
+    public String room_DetailF(){
+
+        return "room/roomDetail";
+    }
 }

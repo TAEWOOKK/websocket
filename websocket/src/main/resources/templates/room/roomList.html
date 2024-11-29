@@ -101,6 +101,17 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"></script>
 
 <script>
+
+    $.ajax({
+        url: '/UserInfo',
+        method: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            localStorage.setItem('email',data.email);
+            localStorage.setItem('nickname',data.nickname);
+        }
+    });
+
     // 방 리스트 받아오기 및 렌더링
     function fetchRoomList() {
         $.ajax({
@@ -191,6 +202,7 @@
     // 방 설명 모달
     function showRoomDetails(room_id) {
         alert(`${room_id}`);
+        location.href = '/Room/DetailF';
     }
 
     // 페이지 로드 시 방 리스트 가져오기

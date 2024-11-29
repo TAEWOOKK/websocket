@@ -1,13 +1,12 @@
 package com.back.websocket.user.service;
 
 import com.back.websocket.config.dto.StateRes;
-import com.back.websocket.user.dto.SignInRequestDTO;
+import com.back.websocket.user.dto.CustomUserDetails;
 import com.back.websocket.user.dto.SignUpRequestDTO;
 import com.back.websocket.user.entity.UserEntity;
 import com.back.websocket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -34,7 +33,6 @@ public class UserService {
 
             userRepository.save(userEntity);
         }catch (Exception e){
-            e.printStackTrace();
             return new ResponseEntity<>(new StateRes(false,"중복된 ID"), HttpStatus.BAD_REQUEST);
         }
 
@@ -44,5 +42,10 @@ public class UserService {
     public Boolean userByEmail(String email){
 
         return userRepository.existsByEmail(email);
+    }
+
+    public UserEntity userInfo(CustomUserDetails userDetails){
+
+        return userRepository.findByEmail(userDetails.getUsername());
     }
 }
