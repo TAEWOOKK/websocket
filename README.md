@@ -1,4 +1,4 @@
-# Getting Started
+# 웹 소켓 테스트
 
 ### Reference Documentation
 For further reference, please consider the following sections:
