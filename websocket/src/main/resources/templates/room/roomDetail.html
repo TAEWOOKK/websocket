@@ -8,16 +8,7 @@
 </head>
 <body>
 <h1>웹소켓 채팅 테스트</h1>
-<div>
-  <label for="chatRoomId">채팅방 번호:</label>
-  <input type="text" id="chatRoomId" placeholder="번호를 입력하세요" />
-</div>
-<div>
-  <label for="username">유저네임:</label>
-  <input type="text" id="username" placeholder="닉네임을 입력하세요" />
-</div>
-<button id="connect">연결</button>
-<button id="disconnect" disabled>연결끊기</button>
+<button id="disconnect" disabled>방 나가기</button>
 <hr>
 <div>
   <textarea id="messages" cols="50" rows="10" readonly></textarea>
@@ -31,54 +22,55 @@
   let socket;
   let chatRoomId;
   let username;
+  let url = window.location.href;
 
   $(document).ready(function () {
-    // Connect button handler
-    $('#connect').click(function () {
-      chatRoomId = $('#chatRoomId').val();
-      username = $('#username').val();
 
-      if (!chatRoomId || !username) {
-        alert("Please enter both Chat Room ID and Username!");
-        return;
+    $('#messageInput').keypress(function(event) {
+      // Enter 키의 keyCode는 13
+      if (event.keyCode === 13) {
+        $('#sendMessage').click();
       }
-
-      // Establish WebSocket connection
-      socket = new WebSocket("ws://localhost:8085/ws");
-
-      socket.onopen = function () {
-        $('#connect').prop('disabled', true);
-        $('#disconnect').prop('disabled', false);
-        appendMessage("Connected to chat room: " + chatRoomId);
-
-        // Send JOIN message
-        const joinMessage = {
-          messageType: "JOIN",  // JOIN message type
-          chatRoomId: parseInt(chatRoomId, 10), // Ensure the ID is sent as a number
-          userName: username,
-          message: "" // Optional message
-        };
-        socket.send(JSON.stringify(joinMessage)); // Send the JOIN message
-      };
-
-      socket.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-
-        if(data.messageType === 'JOIN'){
-          appendMessage(data.message);
-        }else if(data.messageType === 'TALK'){
-          appendMessage(data.userName+" : "+data.message);
-        }else {
-          appendMessage(data);
-        }
-      };
-
-      socket.onclose = function () {
-        $('#connect').prop('disabled', false);
-        $('#disconnect').prop('disabled', true);
-        appendMessage("Disconnected from chat room.");
-      };
     });
+
+    // Connect button handler
+    chatRoomId = url.split('/').pop();
+    username = localStorage.getItem("nickname");
+
+    // Establish WebSocket connection
+    socket = new WebSocket("ws://localhost:8085/ws");
+
+    socket.onopen = function () {
+      $('#connect').prop('disabled', true);
+      $('#disconnect').prop('disabled', false);
+      //appendMessage("Connected to chat room: " + chatRoomId);
+
+      // Send JOIN message
+      const joinMessage = {
+        messageType: "JOIN",  // JOIN message type
+        chatRoomId: chatRoomId,
+        userName: username
+      };
+      socket.send(JSON.stringify(joinMessage)); // Send the JOIN message
+    };
+
+    socket.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+
+      if(data.messageType === 'JOIN'){
+        //appendMessage(data.message);
+      }else if(data.messageType === 'TALK'){
+        appendMessage(data.userName+" : "+data.message);
+      }else {
+        appendMessage(data.message);
+      }
+    };
+
+    socket.onclose = function () {
+      $('#connect').prop('disabled', false);
+      $('#disconnect').prop('disabled', true);
+      appendMessage("방을 나가셨습니다.");
+    };
 
     // Disconnect button handler
     $('#disconnect').click(function () {
@@ -86,9 +78,8 @@
         // Send LEAVE message before closing
         const leaveMessage = {
           chatRoomId: chatRoomId,
-          sender: username,
-          messageType: "LEAVE",
-          message: ""
+          userName: username,
+          messageType: "LEAVE"
         };
         socket.send(JSON.stringify(leaveMessage));
         socket.close();
@@ -101,7 +92,7 @@
       if (socket && message) {
         const chatMessage = {
           messageType: "TALK",  // TALK message type
-          chatRoomId: parseInt(chatRoomId, 10), // 현재 방 ID
+          chatRoomId: chatRoomId,
           userName: username, // 사용자의 이름
           message: message  // 보낼 메시지
         };

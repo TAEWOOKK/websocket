@@ -1,5 +1,6 @@
 package com.back.websocket.chat.entity;
 
+import com.back.websocket.config.entity.BaseEntity;
 import com.back.websocket.room.entity.RoomEntity;
 import com.back.websocket.user.entity.UserEntity;
 import lombok.AllArgsConstructor;
@@ -10,12 +11,14 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "chat")
-public class ChatEntity {
+public class ChatEntity extends BaseEntity {
 
     @Id
     private String id;

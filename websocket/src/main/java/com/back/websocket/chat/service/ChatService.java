@@ -20,13 +20,12 @@ public class ChatService {
     private final RoomRepository roomRepository;
     private final UserRepository userRepository;
     
-    public StateRes chat_save(ChatSaveDTO dto, CustomUserDetails userDetails){
+    public void chat_save(String room_id, String email ,String content){
         
         chatRepository.save(ChatEntity.builder()
-                .content(dto.getContent())
-                .user(userRepository.findByEmail(userDetails.getUsername()))
-                .room(roomRepository.findById(dto.getRoom_id()).orElse(null)).build());
-        
-        return new StateRes(true,"채팅 등록 성공");
+                .content(content)
+                .user(userRepository.findByEmail(email))
+                .room(roomRepository.findById(room_id).orElse(null)).build());
+
     }
 }

@@ -1,5 +1,6 @@
 package com.back.websocket.websocket;
 
+import com.back.websocket.chat.service.ChatService;
 import com.back.websocket.websocket.dto.ChatMessageDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
 
     private final ObjectMapper mapper;
     private final Set<WebSocketSession> sessions = new HashSet<>();
-    private final Map<Long, Set<WebSocketSession>> chatRoomSessionMap = new HashMap<>();
+    private final Map<String, Set<WebSocketSession>> chatRoomSessionMap = new HashMap<>();  // chatRoomId를 String으로 변경
+    private final ChatService chatService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
@@ -35,7 +37,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String payload = message.getPayload();
         ChatMessageDto chatMessageDto = mapper.readValue(payload, ChatMessageDto.class);
 
-        Long chatRoomId = chatMessageDto.getChatRoomId();
+        String chatRoomId = chatMessageDto.getChatRoomId();
         String userName = chatMessageDto.getUserName();
 
         if (chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.JOIN)) {
@@ -49,22 +51,21 @@ public class WebSocketHandler extends TextWebSocketHandler {
         }
         else if (chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.TALK)) {
 
-            chatMessageDto.setMessage(chatMessageDto.getMessage());
+            chatService.chat_save(chatRoomId, userName,chatMessageDto.getMessage());
 
+            chatMessageDto.setMessage(chatMessageDto.getMessage());
         }
         else if (chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.LEAVE)) {
-
             Set<WebSocketSession> roomSessions = chatRoomSessionMap.get(chatRoomId);
-
+            chatMessageDto.setMessage(userName + "님이 퇴장하셨습니다.");
             if (roomSessions != null) {
-
                 roomSessions.remove(session);
 
                 if (roomSessions.isEmpty()) {
                     chatRoomSessionMap.remove(chatRoomId);
                 }
             }
-            chatMessageDto.setMessage(userName + "님이 퇴장하셨습니다.");
+
         }
 
         // 유효하지 않은 세션은 제거하고 메세지 전송
