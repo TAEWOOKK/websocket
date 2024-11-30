@@ -26,8 +26,6 @@ public class ChatService {
     
     public void chat_save(String room_id, String email ,String content){
 
-        System.out.println(email);
-
         chatRepository.save(ChatEntity.builder()
                 .content(content)
                 .user(userRepository.findByEmail(email))
@@ -43,12 +41,12 @@ public class ChatService {
 
         query.addCriteria(Criteria.where("room.id").is(room_id));
 
-        query.fields().include("content").include("createdAt");
+        query.fields().include("content").include("createdAt").include("user");
 
         List<ChatEntity> chats = mongoTemplate.find(query, ChatEntity.class);
 
         return chats.stream()
-                .map(chat -> new ChatListDTO(chat.getContent(),chat.getCreatedAt()))
+                .map(chat -> new ChatListDTO(chat.getContent(),chat.getUser().getNickname(),chat.getCreatedAt()))
                 .toList();
     }
 }

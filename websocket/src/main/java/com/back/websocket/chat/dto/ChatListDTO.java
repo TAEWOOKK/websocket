@@ -15,7 +15,7 @@ public class ChatListDTO {
 
     private String content;
 
-    //private String user_nickname;
+    private String user_nickname;
 
     private LocalDateTime createdAt;
 }

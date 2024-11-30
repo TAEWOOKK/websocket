@@ -5,13 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebSocket Chat Test</title>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    #chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .message-left, .message-right {
+      max-width: 60%;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .message-left {
+      background-color: #f1f1f1;
+      align-self: flex-start;  /* 왼쪽 정렬 */
+      margin-left: 0;
+    }
+
+    .message-right {
+      background-color: #4caf50;
+      color: white;
+      align-self: flex-end;  /* 오른쪽 정렬 */
+      margin-right: 0;
+    }
+
+    .user-name {
+      font-weight: bold;
+    }
+
+    .message-content {
+      margin-left: 5px;
+    }
+  </style>
 </head>
 <body>
 <h1>웹소켓 채팅 테스트</h1>
 <button id="disconnect" disabled>방 나가기</button>
-<hr>
-<div>
-  <textarea id="messages" cols="50" rows="10" readonly></textarea>
+<div id="chat-container">
+  <!--<textarea id="messages" cols="50" rows="10" readonly></textarea>-->
 </div>
 <div>
   <input type="text" id="messageInput" placeholder="메세지를 입력하세요" />
@@ -21,7 +57,8 @@
 <script>
   let socket;
   let chatRoomId;
-  let username;
+  let email;
+  let nickName;
   let url = window.location.href;
 
   $(document).ready(function () {
@@ -35,7 +72,8 @@
 
     // Connect button handler
     chatRoomId = url.split('/').pop();
-    username = localStorage.getItem("nickname");
+    email = localStorage.getItem("email");
+    nickName = localStorage.getItem("nickname");
 
     // Establish WebSocket connection
     socket = new WebSocket("ws://localhost:8085/ws");
@@ -49,7 +87,8 @@
       const joinMessage = {
         messageType: "JOIN",  // JOIN message type
         chatRoomId: chatRoomId,
-        userName: username
+        email: email,
+        nickName : nickName
       };
       socket.send(JSON.stringify(joinMessage)); // Send the JOIN message
     };
@@ -57,14 +96,80 @@
     socket.onmessage = function (event) {
       const data = JSON.parse(event.data);
 
-      if(data.messageType === 'JOIN'){
-        //appendMessage(data.message);
-      }else if(data.messageType === 'TALK'){
-        appendMessage(data.userName+" : "+data.message);
-      }else {
+      if (data.messageType === 'JOIN') {
+        // JOIN 메시지 처리
+        try {
+          const rawMessages = data.message; // data.message는 문자열 형태로 온다고 가정
+
+          // 정규식을 사용하여 content와 user_nickname 값을 추출하고 배열로 저장
+          const messages = [];
+          const regex = /content=([^,]+), user_nickname=([^,]+)/g;
+          let match;
+
+          while ((match = regex.exec(rawMessages)) !== null) {
+            // content와 user_nickname을 배열에 추가
+            messages.push({ user_nickname: match[2], content: match[1] });
+          }
+
+          // 추출된 내용 (user_nickname : content) 값을 #messages 영역에 추가
+          messages.forEach(function (msg) {
+            // localStorage에서 nickname 가져오기
+            const nickname = localStorage.getItem("nickname");
+
+            // 메시지의 user_nickname과 localStorage에서 가져온 nickname 비교
+            if (msg.user_nickname === nickname) {
+              // 내가 보낸 메시지는 오른쪽에
+              appendMessageRight(msg.content);
+            } else {
+              // 다른 사람이 보낸 메시지는 왼쪽에
+              appendMessageLeft(msg.user_nickname, msg.content);
+            }
+          });
+
+        } catch (error) {
+          console.error('Error processing JOIN message:', error);
+        }
+      } else if (data.messageType === 'TALK') {
+        // 일반 메시지 처리
+        const nickname = localStorage.getItem("nickname");
+
+        if (data.nickName === nickname) {
+          appendMessageRight(data.message);
+        } else {
+          appendMessageLeft(data.nickName, data.message);
+        }
+      } else {
+        // 다른 메시지 타입 처리
         appendMessage(data.message);
       }
     };
+
+// Append message to textarea (right aligned)
+    function appendMessageRight(content) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message-right');
+      messageDiv.textContent = content;
+      document.getElementById('chat-container').appendChild(messageDiv);
+    }
+
+// Append message to textarea (left aligned)
+    function appendMessageLeft(user_nickname, content) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message-left');
+
+      const userNameSpan = document.createElement('span');
+      userNameSpan.classList.add('user-name');
+      userNameSpan.textContent = user_nickname + " : ";
+
+      const messageSpan = document.createElement('span');
+      messageSpan.classList.add('message-content');
+      messageSpan.textContent = content;
+
+      messageDiv.appendChild(userNameSpan);
+      messageDiv.appendChild(messageSpan);
+
+      document.getElementById('chat-container').appendChild(messageDiv);
+    }
 
     socket.onclose = function () {
       $('#connect').prop('disabled', false);
@@ -78,7 +183,8 @@
         // Send LEAVE message before closing
         const leaveMessage = {
           chatRoomId: chatRoomId,
-          userName: username,
+          email: email,
+          nickName : nickName,
           messageType: "LEAVE"
         };
         socket.send(JSON.stringify(leaveMessage));
@@ -93,7 +199,8 @@
         const chatMessage = {
           messageType: "TALK",  // TALK message type
           chatRoomId: chatRoomId,
-          userName: username, // 사용자의 이름
+          email: email,
+          nickName : nickName,
           message: message  // 보낼 메시지
         };
         socket.send(JSON.stringify(chatMessage)); // 메시지를 JSON 형식으로 전송

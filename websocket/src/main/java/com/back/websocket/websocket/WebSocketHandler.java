@@ -38,26 +38,28 @@ public class WebSocketHandler extends TextWebSocketHandler {
         ChatMessageDto chatMessageDto = mapper.readValue(payload, ChatMessageDto.class);
 
         String chatRoomId = chatMessageDto.getChatRoomId();
-        String userName = chatMessageDto.getUserName();
+        String email = chatMessageDto.getEmail();
+        String nickName = chatMessageDto.getNickName();
 
         if (chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.JOIN)) {
             // 이미 동일한 세션이 있는지 확인 후 처리
             Set<WebSocketSession> roomSessions = chatRoomSessionMap.computeIfAbsent(chatRoomId, s -> new HashSet<>());
             if (!roomSessions.add(session)) {
-                log.warn("이미 세션이 존재합니다: 사용자 {}, 방 ID {}", userName, chatRoomId);
+                log.warn("이미 세션이 존재합니다: 사용자 {}, 방 ID {}", email, chatRoomId);
                 return; // 이미 세션이 존재하면 추가하지 않고 종료
             }
-            chatMessageDto.setMessage(userName + " 님이 입장하셨습니다.");
+
+            chatMessageDto.setMessage(chatService.chat_List(chatRoomId).toString());
         }
         else if (chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.TALK)) {
 
-            chatService.chat_save(chatRoomId, userName,chatMessageDto.getMessage());
+            chatService.chat_save(chatRoomId, email,chatMessageDto.getMessage());
 
             chatMessageDto.setMessage(chatMessageDto.getMessage());
         }
         else if (chatMessageDto.getMessageType().equals(ChatMessageDto.MessageType.LEAVE)) {
             Set<WebSocketSession> roomSessions = chatRoomSessionMap.get(chatRoomId);
-            chatMessageDto.setMessage(userName + "님이 퇴장하셨습니다.");
+            chatMessageDto.setMessage(nickName + "님이 퇴장하셨습니다.");
             if (roomSessions != null) {
                 roomSessions.remove(session);
 
@@ -65,7 +67,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
                     chatRoomSessionMap.remove(chatRoomId);
                 }
             }
-
         }
 
         // 유효하지 않은 세션은 제거하고 메세지 전송
@@ -76,7 +77,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
                     validSessions.add(webSocketSession);
                     webSocketSession.sendMessage(new TextMessage(mapper.writeValueAsString(chatMessageDto)));
                 } else {
-                    log.warn("닫힌 세션 제거: 사용자 {}, 방 ID {}", userName, chatRoomId);
+                    log.warn("닫힌 세션 제거: 사용자 {}, 방 ID {}", email, chatRoomId);
                 }
             }
             chatRoomSessionMap.put(chatRoomId, validSessions); // 닫힌 세션 제거 후 업데이트
