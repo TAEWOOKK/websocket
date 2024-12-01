@@ -6,32 +6,42 @@
   <title>WebSocket Chat Test</title>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <style>
-    #chat-container {
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      height: 100vh;
+    }
+
+    #chat-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 10px;
+      background-color: #f9f9f9;
+      overflow-y: auto; /* 스크롤 가능 */
     }
 
     .message-left, .message-right {
       max-width: 60%;
       padding: 10px;
-      margin: 5px;
+      margin: 5px 0;
       border-radius: 10px;
-      display: flex;
-      align-items: center;
+      display: block;
+      word-wrap: break-word;
     }
 
     .message-left {
       background-color: #f1f1f1;
-      align-self: flex-start;  /* 왼쪽 정렬 */
-      margin-left: 0;
+      align-self: flex-start;
     }
 
     .message-right {
       background-color: #4caf50;
       color: white;
-      align-self: flex-end;  /* 오른쪽 정렬 */
-      margin-right: 0;
+      align-self: flex-end;
     }
 
     .user-name {
@@ -41,15 +51,44 @@
     .message-content {
       margin-left: 5px;
     }
+
+    #messageInputContainer {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background-color: #fff;
+      border-top: 1px solid #ddd;
+      box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    #messageInput {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    #sendMessage {
+      margin-left: 10px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 20px;
+      background-color: #4caf50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #sendMessage:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
-<h1>웹소켓 채팅 테스트</h1>
-<button id="disconnect" disabled>방 나가기</button>
-<div id="chat-container">
-  <!--<textarea id="messages" cols="50" rows="10" readonly></textarea>-->
-</div>
-<div>
+<div id="chat-container"></div>
+<div id="messageInputContainer">
   <input type="text" id="messageInput" placeholder="메세지를 입력하세요" />
   <button id="sendMessage">전송</button>
 </div>
@@ -144,15 +183,19 @@
       }
     };
 
-// Append message to textarea (right aligned)
+    function scrollToBottom() {
+      const chatContainer = document.getElementById('chat-container');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
     function appendMessageRight(content) {
       const messageDiv = document.createElement('div');
       messageDiv.classList.add('message-right');
       messageDiv.textContent = content;
       document.getElementById('chat-container').appendChild(messageDiv);
+      scrollToBottom();
     }
 
-// Append message to textarea (left aligned)
     function appendMessageLeft(user_nickname, content) {
       const messageDiv = document.createElement('div');
       messageDiv.classList.add('message-left');
@@ -169,6 +212,7 @@
       messageDiv.appendChild(messageSpan);
 
       document.getElementById('chat-container').appendChild(messageDiv);
+      scrollToBottom();
     }
 
     socket.onclose = function () {
