@@ -138,23 +138,16 @@
       }
     });
 
+    let join = false;
     // 개인 메시지 (JOIN, LEAVE 등) 구독
     stompClient.subscribe("/user/queue/reply", function (messageOutput) {
-      const data = JSON.parse(messageOutput.body);
 
-      if (data.messageType === 'JOIN') {
-        console.log('JOIN message received:', data);
+      if(!join){
+        const messages = JSON.parse(messageOutput.body); // 서버에서 전달된 JSON 데이터
 
-        // JOIN 메시지 처리
-        const rawMessages = data.message;
-        const messages = [];
-        const regex = /content=([^,]+), user_nickname=([^,]+)/g;
-        let match;
+        console.log("Messages received:", messages);
 
-        while ((match = regex.exec(rawMessages)) !== null) {
-          messages.push({ user_nickname: match[2], content: match[1] });
-        }
-
+        // 메시지 목록 처리
         messages.forEach(function (msg) {
           if (msg.user_nickname === nickName) {
             appendMessageRight(msg.content);
@@ -162,12 +155,8 @@
             appendMessageLeft(msg.user_nickname, msg.content);
           }
         });
-      } else if (data.messageType === 'LEAVE') {
-        console.log('LEAVE message received:', data);
-        // LEAVE 메시지 처리 (필요시 구현)
-      } else {
-        console.warn('Unknown message type:', data.messageType);
       }
+      join = true;
     });
 
     // JOIN 메시지 보내기
