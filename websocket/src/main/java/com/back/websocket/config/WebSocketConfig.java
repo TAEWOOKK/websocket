@@ -12,12 +12,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").withSockJS(); // /ws 경로로 연결을 설정
+        registry.addEndpoint("/ws")
+                .setAllowedOriginPatterns("*")
+                .withSockJS();
     }
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic", "/queue"); // 메시지를 브로드캐스트할 경로를 설정
-        registry.setApplicationDestinationPrefixes("/app"); // 클라이언트가 보낼 메시지의 경로 접두사
+        registry.enableSimpleBroker("/topic", "/queue"); // 메시지 브로커 경로
+        registry.setApplicationDestinationPrefixes("/app"); // 메시지 전송 경로
     }
 }
