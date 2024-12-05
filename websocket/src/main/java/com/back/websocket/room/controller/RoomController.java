@@ -31,8 +31,6 @@ public class RoomController {
     @GetMapping("/List")
     public ResponseEntity<?> room_List(@AuthenticationPrincipal CustomUserDetails userDetails){
 
-        System.out.println(roomService.room_List(userDetails));
-
         return new ResponseEntity<>(roomService.room_List(userDetails), HttpStatus.OK);
     }
 

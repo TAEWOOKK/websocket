@@ -15,6 +15,74 @@
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f4f7fa;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* 사이드바 스타일 */
+        #sidebar {
+            width: 300px;
+            position: fixed;
+            top: 0;
+            left: -300px;
+            height: 100%;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            transition: left 0.3s ease;
+            z-index: 1000;
+        }
+
+        #sidebar.active {
+            left: 0;
+        }
+
+        #sidebar h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        #sidebar .friend-list {
+            margin-bottom: 20px;
+        }
+
+        #sidebar .friend-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #444;
+            border-radius: 5px;
+        }
+
+        #sidebar .friend-item span {
+            font-size: 14px;
+        }
+
+        #sidebar .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+
+        /* 메인 컨텐츠 스타일 */
+        .main-content {
+            flex: 1;
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.shift {
+            margin-left: 300px;
+        }
+
+        .hamburger {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1100;
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
         }
 
         /* 카드를 감싸는 컨테이너 */
@@ -110,41 +178,64 @@
         .modal-content {
             border-radius: 15px; /* 모서리를 둥글게 설정 */
         }
+
+
     </style>
 </head>
 <body>
-<div class="container mt-5">
-    <!-- 방 리스트 -->
-    <div class="room-list-container" id="roomListContainer">
-        <!-- 방들이 동적으로 추가됩니다 -->
-    </div>
+<!-- 햄버거 버튼 -->
+<div class="hamburger" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</div>
 
-    <!-- 채팅방 생성 버튼 -->
-    <div class="create-room-btn" id="createRoomBtn" data-bs-toggle="modal" data-bs-target="#createRoomModal">
-        <i class="fas fa-plus-circle"></i> 방 생성
+<!-- 사이드바 -->
+<div id="sidebar">
+    <h3>친구 목록</h3>
+    <div class="friend-list" id="friendList">
+        <!-- 친구 목록이 동적으로 추가됩니다 -->
     </div>
+    <hr>
+    <h3>친구 추가</h3>
+    <form id="addFriendForm">
+        <input type="text" id="friendNickname" class="form-control mb-2" placeholder="닉네임" required>
+        <button type="submit" class="btn btn-success w-100">추가</button>
+        <div id="friendError" class="error-message"></div>
+    </form>
+</div>
+<div class="main-content">
+    <div class="container mt-5">
+        <!-- 방 리스트 -->
+        <div class="room-list-container" id="roomListContainer">
+            <!-- 방들이 동적으로 추가됩니다 -->
+        </div>
 
-    <!-- 방 생성 모달 -->
-    <div class="modal fade" id="createRoomModal" tabindex="-1" aria-labelledby="createRoomModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createRoomModalLabel">방 생성</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="createRoomForm">
-                        <div class="mb-3">
-                            <label for="roomName" class="form-label">방 제목</label>
-                            <input type="text" class="form-control" id="roomName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="roomDescription" class="form-label">방 설명</label>
-                            <textarea class="form-control" id="roomDescription" rows="3" required></textarea>
-                        </div>
-                        <div id="message"></div> <!-- 에러 메시지 표시 영역 -->
-                        <button type="submit" class="btn btn-primary w-100">방 생성</button>
-                    </form>
+        <!-- 채팅방 생성 버튼 -->
+        <div class="create-room-btn" id="createRoomBtn" data-bs-toggle="modal" data-bs-target="#createRoomModal">
+            <i class="fas fa-plus-circle"></i> 방 생성
+        </div>
+
+        <!-- 방 생성 모달 -->
+        <div class="modal fade" id="createRoomModal" tabindex="-1" aria-labelledby="createRoomModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createRoomModalLabel">방 생성</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="createRoomForm">
+                            <div class="mb-3">
+                                <label for="roomName" class="form-label">방 제목</label>
+                                <input type="text" class="form-control" id="roomName" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="roomDescription" class="form-label">방 설명</label>
+                                <textarea class="form-control" id="roomDescription" rows="3" required></textarea>
+                            </div>
+                            <div id="message"></div> <!-- 에러 메시지 표시 영역 -->
+                            <button type="submit" class="btn btn-primary w-100">방 생성</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -160,6 +251,12 @@
             localStorage.setItem('nickname', data.nickname);
         }
     });
+
+    // 사이드바 토글
+    function toggleSidebar() {
+        $('#sidebar').toggleClass('active');
+        $('.main-content').toggleClass('shift');
+    }
 
     // 방 리스트 받아오기 및 렌더링
     function fetchRoomList() {
@@ -223,8 +320,56 @@
     }
 
     // 페이지 로드 시 방 리스트 가져오기
-    $(document).ready(function() {
+    $(document).ready(function () {
         fetchRoomList();
+        fetchFriendList();
+    });
+
+
+    // 친구 목록 불러오기
+    function fetchFriendList() {
+        $.ajax({
+            url: '/Friend/List',
+            method: 'GET',
+            success: function (friends) {
+                const friendList = $('#friendList');
+                friendList.empty();
+
+                friends.forEach(function (friend) {
+                    const friendItem = $('<div>').addClass('friend-item').html(`
+                            <span>${friend.friend_nickname}</span>
+                            <span>${friend.friend_check ? '✓' : '✗'}</span>
+                        `);
+                    friendList.append(friendItem);
+                });
+            },
+            error: function (error) {
+                console.error('Error fetching friends:', error);
+            }
+        });
+    }
+
+    // 친구 추가
+    $('#addFriendForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const nickname = $('#friendNickname').val();
+        $('#friendError').text('');
+
+        $.ajax({
+            url: '/Friend/Plus',
+            method: 'POST',
+            data: { nickname: nickname },
+            success: function (response) {
+                alert(response.message);
+                $('#addFriendForm')[0].reset();
+                fetchFriendList();
+            },
+            error: function (xhr) {
+                const errorResponse = JSON.parse(xhr.responseText);
+                $('#friendError').text(errorResponse.result || '에러가 발생했습니다.');
+            }
+        });
     });
 </script>
 

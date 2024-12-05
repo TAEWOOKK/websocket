@@ -27,6 +27,7 @@ public class UserEntity {
 
     private String password;
 
+    @Indexed(unique = true)
     private String nickname;
 
     private String role;

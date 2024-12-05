@@ -22,6 +22,10 @@ public class UserService {
 
     public ResponseEntity<?> signUp(SignUpRequestDTO signUpRequestDTO){
 
+        if(userRepository.existsByNickname(signUpRequestDTO.getNickname())){
+            return new ResponseEntity<>(new StateRes(false,"중복된 닉네임 입니다."), HttpStatus.BAD_REQUEST);
+        };
+
         try {
 
             UserEntity userEntity = UserEntity.builder()
