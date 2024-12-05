@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,19 +32,21 @@ public class RoomService {
     public List<RoomListDto> room_List(CustomUserDetails userDetails){
 
         String email = userDetails.getUsername();
-
         UserEntity byEmail = userRepository.findByEmail(email);
 
         Query query = new Query();
 
         query.addCriteria(Criteria.where("userEntities.id").is(byEmail.getId()));
-
-        query.fields().include("id").include("room_name");
+        query.fields().include("id").include("room_name").include("userEntities");
 
         List<RoomEntity> rooms = mongoTemplate.find(query, RoomEntity.class);
 
         return rooms.stream()
-                .map(room -> new RoomListDto(room.getId(),room.getRoom_name()))
+                .map(room -> new RoomListDto(
+                        room.getId(),
+                        room.getRoom_name(),
+                        room.getUserEntities() != null ? room.getUserEntities().size() : 0 // userEntities 크기 포함
+                ))
                 .toList();
     }
 
