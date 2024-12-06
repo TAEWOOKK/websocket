@@ -23,14 +23,14 @@ public class UserController {
 
     private final UserService userService;
 
-    @GetMapping("/signUp")
+    @GetMapping("/sign-up")
     public String signUpF(){
 
         return "/login/signup";
     }
 
     @ResponseBody
-    @PostMapping("/signUp")
+    @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(@Valid SignUpRequestDTO signUpRequestDTO) {
 
         return userService.signUp(signUpRequestDTO);
@@ -42,7 +42,7 @@ public class UserController {
         return "/login/login";
     }
 
-    @GetMapping("/UserInfo")
+    @GetMapping("/user-info")
     public ResponseEntity<?> userInfo(@AuthenticationPrincipal CustomUserDetails userDetails){
 
         return new ResponseEntity<>(userService.userInfo(userDetails), HttpStatus.OK);

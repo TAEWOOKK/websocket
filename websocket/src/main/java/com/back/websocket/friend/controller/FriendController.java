@@ -10,21 +10,28 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/Friend")
+@RequestMapping("/friend")
 @RequiredArgsConstructor
 public class FriendController {
 
     private final FriendService friendService;
 
     @ResponseBody
-    @GetMapping("/List")
+    @GetMapping("/list")
     public ResponseEntity<?> friend_List(@AuthenticationPrincipal CustomUserDetails userDetails){
 
-        return new ResponseEntity<>(friendService.friend_List(userDetails), HttpStatus.OK);
+        return new ResponseEntity<>(friendService.friend_List(userDetails,true), HttpStatus.OK);
     }
 
     @ResponseBody
-    @PostMapping("/Plus")
+    @GetMapping("/plus-list")
+    public ResponseEntity<?> friend_Plus_List(@AuthenticationPrincipal CustomUserDetails userDetails){
+
+        return new ResponseEntity<>(friendService.friend_List(userDetails,false), HttpStatus.OK);
+    }
+
+    @ResponseBody
+    @PostMapping("/plus")
     public ResponseEntity<?> friend_Plus(@AuthenticationPrincipal CustomUserDetails userDetails,
                                          @RequestParam(value = "nickname")String nickname){
 

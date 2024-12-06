@@ -89,7 +89,7 @@
       data: { email, password },
       success: function(data) {
         if (data.state === true) {
-          window.location.href = "Room/ListF";
+          window.location.href = "room/list-form";
         } else {
           document.getElementById('message').style.color = "red";
           document.getElementById('message').textContent = data.result; // 에러 메시지 표시
@@ -105,7 +105,7 @@
   }
 
   function goToSignUp() {
-    window.location.href = "/signUp";
+    window.location.href = "/sign-up";
   }
 </script>
 </body>

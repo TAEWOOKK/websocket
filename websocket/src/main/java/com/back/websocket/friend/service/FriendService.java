@@ -25,17 +25,17 @@ public class FriendService {
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
 
-    public List<FriendListDTO> friend_List(CustomUserDetails userDetails){
+    public List<FriendListDTO> friend_List(CustomUserDetails userDetails,Boolean friend_check){
 
-        //List<FriendEntity> byToUser = friendRepository.findByTo_user(userRepository.findByEmail(userDetails.getUsername()));
+        UserEntity byEmail = userRepository.findByEmail(userDetails.getUsername());
 
         Query query = new Query();
 
         query.addCriteria(Criteria
-                .where("friend.fromUser.id").is(userDetails.getUsername())
-                .and("friend.friend_check").is(true));
+                .where("fromUser.id").is(byEmail.getId())
+                .and("friend_check").is(friend_check));
 
-        query.fields().include("toUser.id").include("toUser.nickname").include("friend_check");
+        query.fields().include("toUser").include("friend_check");
 
         List<FriendEntity> friends = mongoTemplate.find(query, FriendEntity.class);
 
@@ -43,7 +43,8 @@ public class FriendService {
                 .map(friend -> new FriendListDTO(
                         friend.getToUser().getId(),
                         friend.getToUser().getNickname(),
-                        friend.isFriend_check()))
+                        friend.isFriend_check()
+                        ))
                 .toList();
     }
 
@@ -57,7 +58,7 @@ public class FriendService {
             return new ResponseEntity<>(new StateRes(false,"유저를 찾을 수 없습니다."), HttpStatus.BAD_REQUEST);
         }
 
-        FriendEntity friendCheck = friendRepository.findByToUserAndFromUser(FromUser,ToUser);
+        FriendEntity friendCheck = friendRepository.findByToUserAndFromUser(ToUser,FromUser);
 
         if(friendCheck != null){
             if(friendCheck.isFriend_check()){

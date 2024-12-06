@@ -14,35 +14,35 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RequestMapping("/Room")
+@RequestMapping("/room")
 @Controller
 @RequiredArgsConstructor
 public class RoomController {
 
     private final RoomService roomService;
 
-    @GetMapping("/ListF")
+    @GetMapping("/list-form")
     public String room_ListF(){
 
         return "room/roomList";
     }
 
     @ResponseBody
-    @GetMapping("/List")
+    @GetMapping("/list")
     public ResponseEntity<?> room_List(@AuthenticationPrincipal CustomUserDetails userDetails){
 
         return new ResponseEntity<>(roomService.room_List(userDetails), HttpStatus.OK);
     }
 
     @ResponseBody
-    @PostMapping("/Insert")
+    @PostMapping("/save")
     public ResponseEntity<?> room_Insert(@AuthenticationPrincipal CustomUserDetails userDetails,
                                          @Valid RoomInsertDTO dto){
 
         return new ResponseEntity<>(roomService.room_Insert(userDetails, dto), HttpStatus.OK);
     }
 
-    @GetMapping("/{RoomID}")
+    @GetMapping("/{room_id}")
     public String room_DetailF(){
 
         return "room/roomDetail";

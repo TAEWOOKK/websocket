@@ -24,17 +24,17 @@
             width: 300px;
             position: fixed;
             top: 0;
-            left: -300px;
+            right: -300px; /* 오른쪽에서 튀어나오게 설정 */
             height: 100%;
             background-color: #333;
             color: #fff;
             padding: 20px;
-            transition: left 0.3s ease;
+            transition: right 0.3s ease;
             z-index: 1000;
         }
 
         #sidebar.active {
-            left: 0;
+            right: 0; /* 열렸을 때 오른쪽으로 고정 */
         }
 
         #sidebar h3 {
@@ -64,33 +64,43 @@
             margin-top: 10px;
         }
 
-        /* 메인 컨텐츠 스타일 */
         .main-content {
             flex: 1;
-            margin-left: 0;
-            transition: margin-left 0.3s ease;
+            margin-right: 0; /* 오른쪽으로 사이드바 추가 */
+            transition: margin-right 0.3s ease;
+            text-align: center; /* 룸 리스트 정렬 */
         }
 
         .main-content.shift {
-            margin-left: 300px;
+            margin-right: 300px; /* 사이드바 열렸을 때 오른쪽 여백 추가 */
         }
 
         .hamburger {
             position: fixed;
             top: 10px;
-            left: 10px;
+            right: 10px; /* 버튼을 오른쪽으로 이동 */
+            left: auto;
             z-index: 1100;
             cursor: pointer;
             font-size: 20px;
             color: #333;
         }
 
-        /* 카드를 감싸는 컨테이너 */
+        /* 햄버거 버튼 활성화 상태 (사이드바 열릴 때) */
+        .hamburger.active {
+            color: #fff; /* 아이콘 흰색 */
+            background-color: #333; /* 배경 검정색 */
+        }
+
+        .hamburger:hover {
+            transform: scale(1.1); /* 살짝 커지게 함 */
+        }
+
         .room-list-container {
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            justify-content: center;
+            justify-content: center; /* 중앙 정렬 */
             padding: 20px;
         }
 
@@ -190,17 +200,22 @@
 
 <!-- 사이드바 -->
 <div id="sidebar">
-    <h3>친구 목록</h3>
-    <div class="friend-list" id="friendList">
-        <!-- 친구 목록이 동적으로 추가됩니다 -->
-    </div>
-    <hr>
     <h3>친구 추가</h3>
     <form id="addFriendForm">
         <input type="text" id="friendNickname" class="form-control mb-2" placeholder="닉네임" required>
         <button type="submit" class="btn btn-success w-100">추가</button>
         <div id="friendError" class="error-message"></div>
     </form>
+    <hr>
+    <h3>친구 요청</h3>
+    <div class="friend-request-list" id="friendRequestList">
+        <!-- 친구 요청 목록이 동적으로 추가됩니다 -->
+    </div>
+    <hr>
+    <h3>친구 목록</h3>
+    <div class="friend-list" id="friendList">
+        <!-- 친구 목록이 동적으로 추가됩니다 -->
+    </div>
 </div>
 <div class="main-content">
     <div class="container mt-5">
@@ -243,7 +258,7 @@
 </div>
 <script>
     $.ajax({
-        url: '/UserInfo',
+        url: '/user-info',
         method: 'GET',
         dataType: 'json',
         success: function(data) {
@@ -256,12 +271,13 @@
     function toggleSidebar() {
         $('#sidebar').toggleClass('active');
         $('.main-content').toggleClass('shift');
+        $('.hamburger').toggleClass('active'); // 버튼 색상 상태 변경
     }
 
     // 방 리스트 받아오기 및 렌더링
     function fetchRoomList() {
         $.ajax({
-            url: '/Room/List',
+            url: '/room/list',
             method: 'GET',
             success: function(rooms) {
                 const roomListContainer = $('#roomListContainer');
@@ -290,7 +306,7 @@
         const roomDescription = $('#roomDescription').val();
 
         $.ajax({
-            url: '/Room/Insert',
+            url: '/room/save',
             method: 'POST',
             dataType: 'json',
             data: {
@@ -316,20 +332,21 @@
 
     // 방 설명 모달
     function showRoomDetails(room_id) {
-        location.href = '/Room/' + room_id;
+        location.href = '/room/' + room_id;
     }
 
     // 페이지 로드 시 방 리스트 가져오기
     $(document).ready(function () {
         fetchRoomList();
         fetchFriendList();
+        fetchFriendRequests();
+        fetchFriendList();
     });
-
 
     // 친구 목록 불러오기
     function fetchFriendList() {
         $.ajax({
-            url: '/Friend/List',
+            url: '/friend/list',
             method: 'GET',
             success: function (friends) {
                 const friendList = $('#friendList');
@@ -357,11 +374,11 @@
         $('#friendError').text('');
 
         $.ajax({
-            url: '/Friend/Plus',
+            url: '/friend/plus',
             method: 'POST',
             data: { nickname: nickname },
             success: function (response) {
-                alert(response.message);
+                alert(response.result);
                 $('#addFriendForm')[0].reset();
                 fetchFriendList();
             },
@@ -371,6 +388,53 @@
             }
         });
     });
+
+    function fetchFriendRequests() {
+        $.ajax({
+            url: '/friend/plus-list',
+            method: 'GET',
+            success: function (requests) {
+                const requestList = $('#friendRequestList');
+                requestList.empty();
+
+                requests.forEach(function (request) {
+                    const requestItem = $('<div>').addClass('friend-item').html(`
+                        <span>${request.friend_nickname}</span>
+                        <div>
+                            <button class="btn btn-success btn-sm" onclick="handleFriendRequest('${request.id}', true)">O</button>
+                            <button class="btn btn-danger btn-sm" onclick="handleFriendRequest('${request.id}', false)">X</button>
+                        </div>
+                    `);
+                    requestList.append(requestItem);
+                });
+            },
+            error: function (error) {
+                console.error('Error fetching friend requests:', error);
+            }
+        });
+    }
+
+    // 친구 요청 처리
+    function handleFriendRequest(friendId, isAccepted) {
+        const decision = isAccepted ? '수락' : '거절';
+        alert(`친구 요청 ${decision}: ID - ${friendId}`);
+
+        // 선택된 상태를 서버로 보내기 (예: 수락 또는 거절)
+        $.ajax({
+            url: '/friend/request/response',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ id: friendId, accepted: isAccepted }),
+            success: function (response) {
+                alert(response.message);
+                fetchFriendRequests(); // 요청 목록 새로고침
+                fetchFriendList(); // 친구 목록 새로고침
+            },
+            error: function (error) {
+                console.error('Error handling friend request:', error);
+            }
+        });
+    }
 </script>
 
 </body>
