@@ -28,4 +28,8 @@ public class FriendEntity {
     private UserEntity toUser;
 
     private boolean friend_check;
+
+    public void UpdateFriend_check(boolean friend_check){
+        this.friend_check = friend_check;
+    }
 }

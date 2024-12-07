@@ -20,14 +20,14 @@ public class FriendController {
     @GetMapping("/list")
     public ResponseEntity<?> friend_List(@AuthenticationPrincipal CustomUserDetails userDetails){
 
-        return new ResponseEntity<>(friendService.friend_List(userDetails,true), HttpStatus.OK);
+        return new ResponseEntity<>(friendService.FriendList(userDetails,true), HttpStatus.OK);
     }
 
     @ResponseBody
     @GetMapping("/plus-list")
     public ResponseEntity<?> friend_Plus_List(@AuthenticationPrincipal CustomUserDetails userDetails){
 
-        return new ResponseEntity<>(friendService.friend_List(userDetails,false), HttpStatus.OK);
+        return new ResponseEntity<>(friendService.FriendPlusList(userDetails,false), HttpStatus.OK);
     }
 
     @ResponseBody
@@ -35,6 +35,17 @@ public class FriendController {
     public ResponseEntity<?> friend_Plus(@AuthenticationPrincipal CustomUserDetails userDetails,
                                          @RequestParam(value = "nickname")String nickname){
 
-        return friendService.friend_Plus(userDetails,nickname);
+        return friendService.FriendPlus(userDetails,nickname);
+    }
+
+    @ResponseBody
+    @PostMapping("/plus/{friend_id}")
+    public ResponseEntity<?> friendPlusSuccess(@PathVariable("friend_id") String friend_id,@RequestParam(value = "isAccepted") Boolean isAccepted){
+
+        if(isAccepted){
+            return friendService.FriendPlusSuccess(friend_id);
+        }else {
+            return friendService.FriendPlusDelete(friend_id);
+        }
     }
 }

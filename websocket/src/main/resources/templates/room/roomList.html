@@ -416,19 +416,17 @@
 
     // 친구 요청 처리
     function handleFriendRequest(friendId, isAccepted) {
-        const decision = isAccepted ? '수락' : '거절';
-        alert(`친구 요청 ${decision}: ID - ${friendId}`);
-
-        // 선택된 상태를 서버로 보내기 (예: 수락 또는 거절)
         $.ajax({
-            url: '/friend/request/response',
+            url: '/friend/plus/' + friendId,
             method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ id: friendId, accepted: isAccepted }),
+            dataType: 'json',
+            data: { isAccepted: isAccepted },
             success: function (response) {
-                alert(response.message);
-                fetchFriendRequests(); // 요청 목록 새로고침
-                fetchFriendList(); // 친구 목록 새로고침
+                alert(response.result);
+
+                // 친구 요청 리스트와 친구 목록 리스트를 새로 고침
+                fetchFriendRequests(); // 친구 요청 목록 새로 고침
+                fetchFriendList(); // 친구 목록 새로 고침
             },
             error: function (error) {
                 console.error('Error handling friend request:', error);

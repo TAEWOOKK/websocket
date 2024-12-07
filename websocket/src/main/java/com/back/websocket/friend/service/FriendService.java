@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +26,7 @@ public class FriendService {
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
 
-    public List<FriendListDTO> friend_List(CustomUserDetails userDetails,Boolean friend_check){
+    public List<FriendListDTO> FriendList(CustomUserDetails userDetails,Boolean friend_check){
 
         UserEntity byEmail = userRepository.findByEmail(userDetails.getUsername());
 
@@ -44,11 +45,34 @@ public class FriendService {
                         friend.getToUser().getId(),
                         friend.getToUser().getNickname(),
                         friend.isFriend_check()
-                        ))
+                ))
                 .toList();
     }
 
-    public ResponseEntity<?> friend_Plus(CustomUserDetails userDetails,String nickname){
+    public List<FriendListDTO> FriendPlusList(CustomUserDetails userDetails,Boolean friend_check){
+
+        UserEntity byEmail = userRepository.findByEmail(userDetails.getUsername());
+
+        Query query = new Query();
+
+        query.addCriteria(Criteria
+                .where("toUser.id").is(byEmail.getId())
+                .and("friend_check").is(friend_check));
+
+        query.fields().include("fromUser").include("friend_check");
+
+        List<FriendEntity> friends = mongoTemplate.find(query, FriendEntity.class);
+
+        return friends.stream()
+                .map(friend -> new FriendListDTO(
+                        friend.getId(),
+                        friend.getFromUser().getNickname(),
+                        friend.isFriend_check()
+                ))
+                .toList();
+    }
+
+    public ResponseEntity<?> FriendPlus(CustomUserDetails userDetails,String nickname){
 
         UserEntity FromUser = userRepository.findByEmail(userDetails.getUsername());
 
@@ -76,5 +100,29 @@ public class FriendService {
                 .build());
 
         return new ResponseEntity<>(new StateRes(true,"요청을 보냈습니다."), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> FriendPlusSuccess(String friend_id){
+
+
+        friendRepository.findById(friend_id).ifPresent(byId -> {
+            byId.UpdateFriend_check(true);
+            friendRepository.save(byId);
+
+            friendRepository.save(FriendEntity.builder()
+                            .fromUser(byId.getToUser())
+                            .toUser(byId.getFromUser())
+                            .friend_check(true)
+                    .build());
+        });
+
+        return new ResponseEntity<>(new StateRes(true,"수락하였습니다."), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> FriendPlusDelete(String friend_id){
+
+        friendRepository.deleteById(friend_id);
+
+        return new ResponseEntity<>(new StateRes(true,"거절하였습니다."), HttpStatus.OK);
     }
 }

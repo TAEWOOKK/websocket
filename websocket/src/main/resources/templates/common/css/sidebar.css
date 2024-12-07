@@ -1,0 +1,76 @@
+/* 사이드바 스타일 */
+#sidebar {
+    width: 300px;
+    position: fixed;
+    top: 0;
+    right: -300px; /* 오른쪽에서 튀어나오게 설정 */
+    height: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+}
+
+#sidebar.active {
+    right: 0; /* 열렸을 때 오른쪽으로 고정 */
+}
+
+#sidebar h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+#sidebar .friend-list {
+    margin-bottom: 20px;
+}
+
+#sidebar .friend-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #444;
+    border-radius: 5px;
+}
+
+#sidebar .friend-item span {
+    font-size: 14px;
+}
+
+#sidebar .error-message {
+    color: red;
+    margin-top: 10px;
+}
+
+.main-content {
+    flex: 1;
+    margin-right: 0; /* 오른쪽으로 사이드바 추가 */
+    transition: margin-right 0.3s ease;
+    text-align: center; /* 룸 리스트 정렬 */
+}
+
+.main-content.shift {
+    margin-right: 300px; /* 사이드바 열렸을 때 오른쪽 여백 추가 */
+}
+
+.hamburger {
+    position: fixed;
+    top: 10px;
+    right: 10px; /* 버튼을 오른쪽으로 이동 */
+    left: auto;
+    z-index: 1100;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+}
+
+/* 햄버거 버튼 활성화 상태 (사이드바 열릴 때) */
+.hamburger.active {
+    color: #fff; /* 아이콘 흰색 */
+    background-color: #333; /* 배경 검정색 */
+}
+
+.hamburger:hover {
+    transform: scale(1.1); /* 살짝 커지게 함 */
+}
