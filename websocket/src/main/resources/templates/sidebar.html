@@ -81,9 +81,9 @@
                 .dropdown-content {
                     display: none; /* 기본적으로 숨김 */
                     position: absolute;
-                    bottom: -10px; /* 톱니바퀴 아래쪽으로 */
-                    left: 0; /* 왼쪽 정렬 */
-                    transform: translateY(100%); /* 부모 아래로 이동 */
+                    bottom: -10px; /* 부모 아래쪽으로 10px 간격 */
+                    right: 0; /* 오른쪽 정렬 */
+                    transform: translate(8%, 100%); /* 부모 요소 기준으로 왼쪽 아래로 이동 */
                     background-color: #444;
                     color: white;
                     min-width: 120px;
@@ -91,6 +91,7 @@
                     z-index: 1000;
                     border-radius: 5px;
                 }
+
 
                 /* 드롭다운 메뉴 아이템 */
                 .dropdown-content a {
@@ -176,8 +177,10 @@
                         url: '/friend/delete/' + friendId,
                         method: 'DELETE',
                         success: function (response) {
-                            alert(response.result);
-                            fetchFriendList(); // 친구 목록 새로고침
+                            if(response.state){
+                                alert(response.result);
+                                fetchFriendList(); // 친구 목록 새로고침
+                            }
                         },
                         error: function (error) {
                             console.error('Error deleting friend:', error);
@@ -205,8 +208,8 @@
                                     <div class="dropdown">
                                         <i class="fas fa-cog" onclick="toggleDropdown(event)"></i> <!-- 클릭 시 드롭다운 토글 -->
                                         <div class="dropdown-content">
-                                            <a href="javascript:void(0);" onclick="viewFriendDetails('${friend.friend_id}')">상세 정보</a>
-                                            <a href="javascript:void(0);" onclick="deleteFriend('${friend.friend_id}')">친구 삭제</a>
+                                            <a href="javascript:void(0);" onclick="viewFriendDetails('${friend.id}')">상세 정보</a>
+                                            <a href="javascript:void(0);" onclick="deleteFriend('${friend.id}')">친구 삭제</a>
                                         </div>
                                     </div>
                                 `);

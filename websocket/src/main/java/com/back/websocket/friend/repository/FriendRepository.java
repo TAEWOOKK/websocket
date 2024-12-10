@@ -11,4 +11,8 @@ import java.util.List;
 public interface FriendRepository extends MongoRepository<FriendEntity, String> {
 
     FriendEntity findByToUserAndFromUser(UserEntity to_user,UserEntity from_user);
+
+    void deleteByToUserAndFromUser(UserEntity to_user,UserEntity from_user);
+
+    void deleteByFromUserAndToUser(UserEntity from_user,UserEntity to_user);
 }

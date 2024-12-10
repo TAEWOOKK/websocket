@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -126,5 +127,17 @@ public class FriendService {
         friendRepository.deleteById(friend_id);
 
         return new ResponseEntity<>(new StateRes(true,"거절하였습니다."), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> FriendDelete(String friend_id, UserDetails userDetails){
+
+        UserEntity byEmail = userRepository.findByEmail(userDetails.getUsername());
+
+        UserEntity byId = userRepository.findById(friend_id).orElse(null);
+
+        friendRepository.deleteByFromUserAndToUser(byEmail,byId);
+        friendRepository.deleteByToUserAndFromUser(byEmail,byId);
+
+        return new ResponseEntity<>(new StateRes(true,"삭제하였습니다."), HttpStatus.OK);
     }
 }

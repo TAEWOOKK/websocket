@@ -48,4 +48,11 @@ public class FriendController {
             return friendService.FriendPlusDelete(friend_id);
         }
     }
+
+    @ResponseBody
+    @DeleteMapping("/delete/{friend_id}")
+    public ResponseEntity<?> deleteFriend(@PathVariable("friend_id") String friend_id,@AuthenticationPrincipal CustomUserDetails userDetails){
+
+        return friendService.FriendDelete(friend_id,userDetails);
+    }
 }
