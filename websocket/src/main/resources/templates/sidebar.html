@@ -71,6 +71,53 @@
                 .hamburger:hover {
                     transform: scale(1.1); /* 살짝 커지게 함 */
                 }
+                /* 드롭다운 컨테이너 */
+                .dropdown {
+                    position: relative;
+                    display: inline-block;
+                }
+
+                /* 드롭다운 메뉴 */
+                .dropdown-content {
+                    display: none; /* 기본적으로 숨김 */
+                    position: absolute;
+                    bottom: -10px; /* 톱니바퀴 아래쪽으로 */
+                    left: 0; /* 왼쪽 정렬 */
+                    transform: translateY(100%); /* 부모 아래로 이동 */
+                    background-color: #444;
+                    color: white;
+                    min-width: 120px;
+                    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+                    z-index: 1000;
+                    border-radius: 5px;
+                }
+
+                /* 드롭다운 메뉴 아이템 */
+                .dropdown-content a {
+                    color: white;
+                    padding: 8px 10px;
+                    text-decoration: none;
+                    display: block;
+                    border-bottom: 1px solid #555;
+                }
+
+                .dropdown-content a:last-child {
+                    border-bottom: none;
+                }
+
+                .dropdown-content a:hover {
+                    background-color: #666;
+                }
+
+                /* 드롭다운 활성화 상태 */
+                .dropdown.active .dropdown-content {
+                    display: block; /* 활성화되면 표시 */
+                }
+
+                .dropdown i {
+                    cursor: pointer;
+                    font-size: 18px;
+                }
             </style>
         </head>
         <body>
@@ -105,6 +152,44 @@
                     $('.hamburger').toggleClass('active'); // 버튼 색상 상태 변경
                 }
 
+
+                // 드롭다운 메뉴 토글
+                function toggleDropdown(event) {
+                    // 다른 드롭다운 닫기
+                    $('.dropdown').not(event.currentTarget.parentElement).removeClass('active');
+                    // 현재 드롭다운 토글
+                    $(event.currentTarget.parentElement).toggleClass('active');
+                }
+
+                // 클릭 외 영역 닫기
+                $(document).on('click', function (event) {
+                    if (!$(event.target).closest('.dropdown').length) {
+                        $('.dropdown').removeClass('active');
+                    }
+                });
+
+                // 친구 삭제
+                function deleteFriend(friendId) {
+                    if (!confirm('정말 삭제하시겠습니까?')) return;
+
+                    $.ajax({
+                        url: '/friend/delete/' + friendId,
+                        method: 'DELETE',
+                        success: function (response) {
+                            alert(response.result);
+                            fetchFriendList(); // 친구 목록 새로고침
+                        },
+                        error: function (error) {
+                            console.error('Error deleting friend:', error);
+                        }
+                    });
+                }
+
+                // 친구 상세 정보 보기
+                function viewFriendDetails(friendId) {
+                    alert('친구 상세 정보 보기: ' + friendId);
+                }
+
                 // 친구 목록 불러오기
                 function fetchFriendList() {
                     $.ajax({
@@ -116,9 +201,15 @@
 
                             friends.forEach(function (friend) {
                                 const friendItem = $('<div>').addClass('friend-item').html(`
-                    <span>${friend.friend_nickname}</span>
-                    <span>${friend.friend_check ? '✓' : '✗'}</span>
-                `);
+                                    <span>${friend.friend_nickname}</span>
+                                    <div class="dropdown">
+                                        <i class="fas fa-cog" onclick="toggleDropdown(event)"></i> <!-- 클릭 시 드롭다운 토글 -->
+                                        <div class="dropdown-content">
+                                            <a href="javascript:void(0);" onclick="viewFriendDetails('${friend.friend_id}')">상세 정보</a>
+                                            <a href="javascript:void(0);" onclick="deleteFriend('${friend.friend_id}')">친구 삭제</a>
+                                        </div>
+                                    </div>
+                                `);
                                 friendList.append(friendItem);
                             });
                         },
