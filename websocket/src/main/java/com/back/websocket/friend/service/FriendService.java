@@ -70,6 +70,7 @@ public class FriendService {
                 .map(friend -> new FriendListDTO(
                         friend.getId(),
                         friend.getFromUser().getNickname(),
+                        friend.getFromUser().getStatus(),
                         friend.isFriend_check()
                 ))
                 .toList();
