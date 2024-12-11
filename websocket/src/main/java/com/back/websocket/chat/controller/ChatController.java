@@ -34,6 +34,8 @@ public class ChatController {
     @MessageMapping("/chat.addUser")
     public void addUser(ChatMessageDto chatMessageDto) {
 
+        System.out.println(chatMessageDto.getMessageType());
+        System.out.println(chatMessageDto.getEmail());
         // 클라이언트에게 메시지 전송
         messagingTemplate.convertAndSendToUser(chatMessageDto.getEmail(),
                 "/queue/reply", chatService.chat_List(chatMessageDto.getChatRoomId()));

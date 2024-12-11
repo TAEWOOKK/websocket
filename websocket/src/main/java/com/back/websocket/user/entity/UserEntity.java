@@ -1,10 +1,7 @@
 package com.back.websocket.user.entity;
 
 import com.back.websocket.room.entity.RoomEntity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -31,6 +28,12 @@ public class UserEntity {
 
     private String role;
 
+    private Boolean status = false; // 디폴트 오프라인 상태
+
     @DBRef
     private List<RoomEntity> roomEntities;
+
+    public void UpdateStatus(boolean status){
+        this.status = status;
+    }
 }

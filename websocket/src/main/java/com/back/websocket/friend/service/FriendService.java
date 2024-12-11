@@ -46,6 +46,7 @@ public class FriendService {
                 .map(friend -> new FriendListDTO(
                         friend.getToUser().getId(),
                         friend.getToUser().getNickname(),
+                        friend.getToUser().getStatus(),
                         friend.isFriend_check()
                 ))
                 .toList();

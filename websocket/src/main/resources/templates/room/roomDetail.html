@@ -220,7 +220,10 @@
   }
 
   // Handle connection close
-  $(window).on('beforeunload', function () {
+  $(window).on('beforeunload', function (event) {
+
+    event.preventDefault();
+
     if (stompClient) {
       const leaveMessage = {
         chatRoomId: chatRoomId,

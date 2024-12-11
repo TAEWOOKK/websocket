@@ -21,5 +21,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/topic", "/queue"); // 메시지 브로커 경로
         registry.setApplicationDestinationPrefixes("/app"); // 메시지 전송 경로
+
+        registry.enableSimpleBroker("/friendsSocket"); // 친구 실시간 리스트 브로커
+        registry.setApplicationDestinationPrefixes("/friends"); // 친구 실시간 리스트 전송 경로
     }
 }
