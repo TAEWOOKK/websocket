@@ -34,7 +34,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         // 예외에 따라 메시지 처리 (비밀번호 오류나 아이디 없음)
         if(!exist){
-            stateRes = new StateRes(false, "ID invalid");
+            stateRes = new StateRes(false, "아이디가 유효하지 않습니다.");
         }else{
             stateRes = new StateRes(false, "password wrong");
         }
@@ -43,6 +43,8 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         // JSON으로 응답을 반환
         response.setStatus(responseEntity.getStatusCode().value());
+        response.setContentType("application/json; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
         response.getWriter().write(new ObjectMapper().writeValueAsString(responseEntity.getBody()));
     }
 }

@@ -24,6 +24,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         // JSON으로 응답을 반환
         response.setStatus(responseEntity.getStatusCode().value());
+        response.setContentType("application/json; charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
         response.getWriter().write(new ObjectMapper().writeValueAsString(responseEntity.getBody()));
     }
 }

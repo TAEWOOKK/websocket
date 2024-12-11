@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @Configuration
@@ -50,6 +51,9 @@ public class SecurityConfig {
                         .failureHandler(authenticationFailureHandler(applicationContext)) // 로그인 실패 핸들러
                         .permitAll()
         );
+
+        http.addFilterBefore(new CustomRequestLoggingFilter(), UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
