@@ -27,9 +27,9 @@ public class FriendService {
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
 
-    public List<FriendListDTO> FriendList(CustomUserDetails userDetails,Boolean friend_check){
+    public List<FriendListDTO> FriendList(String email,Boolean friend_check){
 
-        UserEntity byEmail = userRepository.findByEmail(userDetails.getUsername());
+        UserEntity byEmail = userRepository.findByEmail(email);
 
         Query query = new Query();
 
@@ -44,6 +44,7 @@ public class FriendService {
         return friends.stream()
                 .map(friend -> new FriendListDTO(
                         friend.getToUser().getId(),
+                        friend.getToUser().getEmail(),
                         friend.getToUser().getNickname(),
                         friend.getToUser().getStatus(),
                         friend.isFriend_check()
@@ -68,6 +69,7 @@ public class FriendService {
         return friends.stream()
                 .map(friend -> new FriendListDTO(
                         friend.getId(),
+                        friend.getFromUser().getEmail(),
                         friend.getFromUser().getNickname(),
                         friend.getFromUser().getStatus(),
                         friend.isFriend_check()
