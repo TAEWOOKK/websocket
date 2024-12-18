@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.util.List;
 
 @Slf4j
@@ -25,19 +26,23 @@ public class FriendSocketController {
     private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/friend.online")
-    public void friendOnline(@AuthenticationPrincipal CustomUserDetails userDetails){
+    public void friendOnline(Principal principal){
 
-        UserEntity userEntity = userRepository.findByEmail(userDetails.getUsername());
+        System.out.println("연결됨");
+
+        System.out.println(principal.getName());
+
+        UserEntity userEntity = userRepository.findByEmail(principal.getName());
 
         userEntity.UpdateStatus(true);
         userRepository.save(userEntity);
 
-        List<FriendListDTO> friends = friendService.FriendList(userDetails, true);
+        List<FriendListDTO> friends = friendService.FriendList((CustomUserDetails) principal, true);
 
         friends.forEach(friend -> {
             messagingTemplate.convertAndSendToUser(
                     friend.getId(),
-                    "/queue/status",
+                    "/friendsSocket/reply",
                     new FriendStatusDTO(userEntity.getId(), true) // 친구의 상태를 DTO로 전달
             );
         });

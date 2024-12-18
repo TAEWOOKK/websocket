@@ -298,6 +298,27 @@
                     fetchFriendRequests();
                     fetchFriendList();
                 });
+
+                const socket = new SockJS("/ws"); // 서버의 /ws 엔드포인트로 연결
+                stompClient = Stomp.over(socket);
+
+
+                stompClient.connect({}, function (frame) {
+                    console.log('Connected: ' + frame);
+
+                    stompClient.subscribe("/user/friendsSocket/reply", function (messageOutput) {
+
+                        const messages = JSON.parse(messageOutput.body); // 서버에서 전달된 JSON 데이터
+
+                        alert(messages);
+                    });
+
+                    // JOIN 메시지 보내기
+                    const joinMessage = {
+
+                    };
+                    stompClient.send("/friends/friend.online", {}, JSON.stringify(joinMessage));
+                });
             </script>
         </body>
     </th:block>
