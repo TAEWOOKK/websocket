@@ -20,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FriendSocketController {
 
+    
     private final UserRepository userRepository;
     private final FriendService friendService;
     private final SimpMessagingTemplate messagingTemplate;
