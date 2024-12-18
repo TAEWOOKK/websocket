@@ -30,6 +30,7 @@ public class FriendController {
         return new ResponseEntity<>(friendService.FriendPlusList(userDetails,false), HttpStatus.OK);
     }
 
+
     @ResponseBody
     @PostMapping("/plus")
     public ResponseEntity<?> friend_Plus(@AuthenticationPrincipal CustomUserDetails userDetails,
