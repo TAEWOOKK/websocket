@@ -1,10 +1,12 @@
 package com.back.websocket.config;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.*;
+import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker // STOMP를 사용하기 위해 필요한 어노테이션
@@ -15,6 +17,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
+    }
+
+    @Bean
+    HttpSessionHandshakeInterceptor httpSessionHandshakeInterceptor() {
+        return new HttpSessionHandshakeInterceptor();
     }
 
     @Override

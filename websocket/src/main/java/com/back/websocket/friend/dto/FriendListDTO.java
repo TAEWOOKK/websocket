@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class FriendListDTO {
 
     private String id;
+    private String email;
     private String friend_nickname;
     private boolean status;
     private Boolean friend_check;

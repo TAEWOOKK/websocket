@@ -122,6 +122,18 @@
                     cursor: pointer;
                     font-size: 18px;
                 }
+
+                .friend-item.online {
+                    background-color: #4CAF50; /* 온라인 친구는 초록색 배경 */
+                }
+
+                .online {
+                    background-color: #e8f5e9; /* 연한 초록색 배경 */
+                }
+
+                .offline {
+                    background-color: #f5f5f5; /* 회색 배경 */
+                }
             </style>
         </head>
         <body>
@@ -206,16 +218,26 @@
                             friendList.empty();
 
                             friends.forEach(function (friend) {
-                                const friendItem = $('<div>').addClass('friend-item').html(`
-                                    <span>${friend.friend_nickname}</span>
-                                    <div class="dropdown">
-                                        <i class="fas fa-cog" onclick="toggleDropdown(event)"></i> <!-- 클릭 시 드롭다운 토글 -->
-                                        <div class="dropdown-content">
-                                            <a href="javascript:void(0);" onclick="viewFriendDetails('${friend.id}')">상세 정보</a>
-                                            <a href="javascript:void(0);" onclick="deleteFriend('${friend.id}')">친구 삭제</a>
-                                        </div>
-                                    </div>
-                                `);
+                                // 상태 클래스 및 표시 설정
+                                const statusClass = friend.status ? 'online' : 'offline';
+                                const statusText = friend.status ? '<span class="online-indicator" style="color: green; margin-left: 10px;">● 온라인</span>' : '';
+
+                                // 친구 아이템 생성
+                                const friendItem = $('<div>')
+                                    .addClass('friend-item')
+                                    .addClass(statusClass) // 온라인/오프라인 상태에 따라 클래스 추가
+                                    .attr('data-friend-id', friend.id)
+                                    .html(`
+                        <span>${friend.friend_nickname} ${statusText}</span>
+                        <div class="dropdown">
+                            <i class="fas fa-cog" onclick="toggleDropdown(event)"></i>
+                            <div class="dropdown-content">
+                                <a href="javascript:void(0);" onclick="viewFriendDetails('${friend.id}')">상세 정보</a>
+                                <a href="javascript:void(0);" onclick="deleteFriend('${friend.id}')">친구 삭제</a>
+                            </div>
+                        </div>
+                    `);
+
                                 friendList.append(friendItem);
                             });
                         },
@@ -258,13 +280,13 @@
                             requestList.empty();
 
                             requests.forEach(function (request) {
-                                const requestItem = $('<div>').addClass('friend-item').html(`
-                        <span>${request.friend_nickname}</span>
-                        <div>
-                            <button class="btn btn-success btn-sm" onclick="handleFriendRequest('${request.id}', true)">O</button>
-                            <button class="btn btn-danger btn-sm" onclick="handleFriendRequest('${request.id}', false)">X</button>
-                        </div>
-                    `);
+                                const requestItem = $('<div>').addClass('friend-item').attr('data-friend-id', request.id).html(`
+                    <span>${request.friend_nickname}</span>
+                    <div>
+                        <button class="btn btn-success btn-sm" onclick="handleFriendRequest('${request.id}', true)">O</button>
+                        <button class="btn btn-danger btn-sm" onclick="handleFriendRequest('${request.id}', false)">X</button>
+                    </div>
+                `);
                                 requestList.append(requestItem);
                             });
                         },
@@ -297,6 +319,53 @@
                     fetchFriendList();
                     fetchFriendRequests();
                     fetchFriendList();
+                });
+
+                const socket = new SockJS("/ws"); // 서버의 /ws 엔드포인트로 연결
+                stompClient = Stomp.over(socket);
+
+
+                stompClient.connect({}, function (frame) {
+                    console.log('Connected: ' + frame);
+
+                    stompClient.subscribe("/user/friendsSocket/reply", function (messageOutput) {
+                        const messages = JSON.parse(messageOutput.body);
+                        const onlineUserId = messages.userId;
+                        const isOnline = messages.isOnline; // 서버에서 전달된 온라인 여부
+
+                        // 친구 목록에서 상태 업데이트
+                        $('#friendList .friend-item').each(function () {
+                            const friendId = $(this).attr('data-friend-id');
+
+                            if (friendId === onlineUserId) {
+                                const statusElement = $(this).find('.online-indicator');
+
+                                if (isOnline) {
+                                    // 온라인 상태로 변경
+                                    $(this).removeClass('offline').addClass('online');
+                                    if (!statusElement.length) {
+                                        $(this).find('span').append('<span class="online-indicator" style="color: green; margin-left: 10px;">● 온라인</span>');
+                                    } else {
+                                        statusElement.text('● 온라인').css('color', 'green');
+                                    }
+                                } else {
+                                    // 오프라인 상태로 변경
+                                    $(this).removeClass('online').addClass('offline');
+                                    if (statusElement.length) {
+                                        statusElement.text('● 오프라인').css('color', 'gray');
+                                    } else {
+                                        $(this).find('span').append('<span class="online-indicator" style="color: gray; margin-left: 10px;">● 오프라인</span>');
+                                    }
+                                }
+                            }
+                        });
+                    });
+
+                    // JOIN 메시지 보내기
+                    const joinMessage = {
+
+                    };
+                    stompClient.send("/friends/friend.online", {}, JSON.stringify(joinMessage));
                 });
             </script>
         </body>

@@ -20,7 +20,7 @@ public class FriendController {
     @GetMapping("/list")
     public ResponseEntity<?> friend_List(@AuthenticationPrincipal CustomUserDetails userDetails){
 
-        return new ResponseEntity<>(friendService.FriendList(userDetails,true), HttpStatus.OK);
+        return new ResponseEntity<>(friendService.FriendList(userDetails.getUsername(),true), HttpStatus.OK);
     }
 
     @ResponseBody
@@ -29,6 +29,7 @@ public class FriendController {
 
         return new ResponseEntity<>(friendService.FriendPlusList(userDetails,false), HttpStatus.OK);
     }
+
 
     @ResponseBody
     @PostMapping("/plus")
