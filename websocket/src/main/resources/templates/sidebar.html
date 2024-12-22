@@ -331,7 +331,7 @@
                     stompClient.subscribe("/user/friendsSocket/reply", function (messageOutput) {
                         const messages = JSON.parse(messageOutput.body);
                         const onlineUserId = messages.userId;
-                        const isOnline = messages.isOnline; // 서버에서 전달된 온라인 여부
+                        const isOnline = messages.status; // 서버에서 전달된 온라인 여부
 
                         // 친구 목록에서 상태 업데이트
                         $('#friendList .friend-item').each(function () {
