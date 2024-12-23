@@ -367,6 +367,22 @@
                     };
                     stompClient.send("/friends/friend.online", {}, JSON.stringify(joinMessage));
                 });
+
+                $(window).on('beforeunload', function (event) {
+
+
+                    alert('ddd');
+                    event.preventDefault();
+
+                    if (stompClient) {
+
+                        const leaveMessage = {
+
+                        };
+                        stompClient.send("/friends/friend.offline", {}, JSON.stringify(leaveMessage));
+                        stompClient.disconnect();
+                    }
+                });
             </script>
         </body>
     </th:block>
