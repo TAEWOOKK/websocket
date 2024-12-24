@@ -220,7 +220,8 @@
                             friends.forEach(function (friend) {
                                 // 상태 클래스 및 표시 설정
                                 const statusClass = friend.status ? 'online' : 'offline';
-                                const statusText = friend.status ? '<span class="online-indicator" style="color: green; margin-left: 10px;">● 온라인</span>' : '';
+                                const statusText = friend.status ? '<span class="online-indicator" style="color: green; margin-left: 10px;">● 온라인</span>'
+                                    : '<span class="online-indicator" style="color: gray; margin-left: 10px;">● 오프라인</span>';
 
                                 // 친구 아이템 생성
                                 const friendItem = $('<div>')
