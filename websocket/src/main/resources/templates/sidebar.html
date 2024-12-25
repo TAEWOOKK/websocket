@@ -322,7 +322,7 @@
                     fetchFriendList();
                 });
 
-                const socket = new SockJS("/ws"); // 서버의 /ws 엔드포인트로 연결
+                const socket = new SockJS("/wsFriends"); // 서버의 /ws 엔드포인트로 연결
                 stompClient = Stomp.over(socket);
 
 
