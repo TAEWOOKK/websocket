@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.*;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 @Configuration
@@ -22,6 +23,12 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setAllowedOriginPatterns("*")
                 .withSockJS();
     }
+
+    @Bean
+    public WebSocketHandler customWebSocketHandler() {
+        return new CustomWebSocketHandler();
+    }
+
 
     @Bean
     HttpSessionHandshakeInterceptor httpSessionHandshakeInterceptor() {

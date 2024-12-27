@@ -38,7 +38,7 @@ public class FriendSocketController {
             messagingTemplate.convertAndSendToUser(
                     friend.getEmail(),
                     "/friendsSocket/reply",
-                    new FriendStatusDTO(userEntity.getId(), true) // 친구의 상태를 DTO로 전달
+                    new FriendStatusDTO(userEntity.getId(), true) // 친구의 상태를 DTO 로 전달
             );
         });
     }
