@@ -1,17 +1,19 @@
 package com.back.websocket.config;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.*;
-import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
-import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker // STOMP를 사용하기 위해 필요한 어노테이션
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final StompLoggingInterceptor stompLoggingInterceptor;
+
+    public WebSocketConfig(StompLoggingInterceptor stompLoggingInterceptor) {
+        this.stompLoggingInterceptor = stompLoggingInterceptor;
+    }
+
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -24,17 +26,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .withSockJS();
     }
 
-    @Bean
-    public WebSocketHandler customWebSocketHandler() {
-        return new CustomWebSocketHandler();
-    }
-
-
-    @Bean
-    HttpSessionHandshakeInterceptor httpSessionHandshakeInterceptor() {
-        return new HttpSessionHandshakeInterceptor();
-    }
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.enableSimpleBroker("/topic", "/queue"); // 메시지 브로커 경로
@@ -42,5 +33,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
         registry.enableSimpleBroker("/friendsSocket"); // 친구 실시간 리스트 브로커
         registry.setApplicationDestinationPrefixes("/friends"); // 친구 실시간 리스트 전송 경로
+    }
+
+    @Override
+    public void configureClientInboundChannel(org.springframework.messaging.simp.config.ChannelRegistration registration) {
+        // ChannelInterceptor 등록
+        registration.interceptors(stompLoggingInterceptor);
     }
 }
