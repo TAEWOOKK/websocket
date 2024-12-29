@@ -46,26 +46,6 @@ public class FriendSocketController {
     @MessageMapping("/friend.offline")
     public void friendOffline(Principal principal) {
 
-        log.info("요청들어옴");
-
-        UserEntity userEntity = userRepository.findByEmail(principal.getName());
-
-        // 상태 업데이트 (오프라인으로)
-        userEntity.UpdateStatus(false);
-        userRepository.save(userEntity);
-
-        // 친구 목록 가져오기
-        List<FriendListDTO> friends = friendService.FriendList(principal.getName(), true);
-
-        // 친구들에게 사용자 상태를 알림
-        friends.forEach(friend -> {
-            messagingTemplate.convertAndSendToUser(
-                    friend.getEmail(),
-                    "/friendsSocket/reply",
-                    new FriendStatusDTO(userEntity.getId(), false)
-            );
-        });
-
-        log.info("사용자 상태가 오프라인으로 업데이트됨: {}", userEntity.getNickname());
+        friendService.friendOffline(principal);
     }
 }

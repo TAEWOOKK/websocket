@@ -2,30 +2,36 @@ package com.back.websocket.friend.service;
 
 import com.back.websocket.config.dto.StateRes;
 import com.back.websocket.friend.dto.FriendListDTO;
+import com.back.websocket.friend.dto.FriendStatusDTO;
 import com.back.websocket.friend.entity.FriendEntity;
 import com.back.websocket.friend.repository.FriendRepository;
 import com.back.websocket.user.dto.CustomUserDetails;
 import com.back.websocket.user.entity.UserEntity;
 import com.back.websocket.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FriendService {
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
     private final MongoTemplate mongoTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public List<FriendListDTO> FriendList(String email,Boolean friend_check){
 
@@ -142,5 +148,30 @@ public class FriendService {
         friendRepository.deleteByToUserAndFromUser(byEmail,byId);
 
         return new ResponseEntity<>(new StateRes(true,"삭제하였습니다."), HttpStatus.OK);
+    }
+
+    public void friendOffline(Principal principal){
+
+        log.info("요청들어옴");
+
+        UserEntity userEntity = userRepository.findByEmail(principal.getName());
+
+        // 상태 업데이트 (오프라인으로)
+        userEntity.UpdateStatus(false);
+        userRepository.save(userEntity);
+
+        // 친구 목록 가져오기
+        List<FriendListDTO> friends = FriendList(principal.getName(), true);
+
+        // 친구들에게 사용자 상태를 알림
+        friends.forEach(friend -> {
+            messagingTemplate.convertAndSendToUser(
+                    friend.getEmail(),
+                    "/friendsSocket/reply",
+                    new FriendStatusDTO(userEntity.getId(), false)
+            );
+        });
+
+        log.info("사용자 상태가 오프라인으로 업데이트됨: {}", userEntity.getNickname());
     }
 }
