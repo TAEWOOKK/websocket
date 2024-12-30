@@ -1,7 +1,10 @@
 package com.back.websocket.config;
 
+import com.back.websocket.friend.service.FriendService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.WebSocketHandler;
@@ -9,14 +12,21 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.config.annotation.*;
 import org.springframework.web.socket.handler.WebSocketHandlerDecorator;
 import org.springframework.web.socket.handler.WebSocketHandlerDecoratorFactory;
-import org.springframework.web.socket.messaging.SubProtocolWebSocketHandler;
 
-import java.io.IOException;
+import java.security.Principal;
+import java.util.Objects;
 
 @Configuration
 @Slf4j
 @EnableWebSocketMessageBroker // STOMP를 사용하기 위해 필요한 어노테이션
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    private final FriendService friendService;
+
+    public WebSocketConfig(@Lazy FriendService friendService) {
+        this.friendService = friendService;
+    }
+
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -48,8 +58,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                     @Override
                     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
                         super.afterConnectionClosed(session, closeStatus);
-                        // 연결 종료 후 로그 출력
-                        log.info("WebSocket 연결 종료: " + session.getId() + " 상태: " + closeStatus);
+
+                        // WebSocketSession에서 URI를 가져와서 어떤 엔드포인트에서 연결이 끊어졌는지 확인
+                        String endpointUri = Objects.requireNonNull(session.getUri()).getPath().split("/")[1];
+
+                        if(endpointUri.equals("wsFriends")) {
+
+                            friendService.friendOffline(Objects.requireNonNull(session.getPrincipal()));
+                        }
                     }
                 };
             }
