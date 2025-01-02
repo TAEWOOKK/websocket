@@ -16,7 +16,8 @@ import java.util.Objects;
 
 @Configuration
 @Slf4j
-@EnableWebSocketMessageBroker // STOMP를 사용하기 위해 필요한 어노테이션
+@EnableWebSocketMessageBroker
+// STOMP를 사용하기 위해 필요한 어노테이션
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final FriendService friendService;
